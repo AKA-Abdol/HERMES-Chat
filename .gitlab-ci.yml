@@ -1,7 +1,7 @@
 build:
   stage: build
   only:
-   - develop
+   - main
   before_script:
   - docker compose down
   script:
