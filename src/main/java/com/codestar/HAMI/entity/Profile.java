@@ -18,6 +18,7 @@ import java.util.Set;
 @Getter
 public class Profile {
     @Id
+    @Hidden
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

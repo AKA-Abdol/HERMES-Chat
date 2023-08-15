@@ -1,6 +1,7 @@
 package com.codestar.HAMI.entity;
 
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -22,7 +23,9 @@ import java.util.Set;
 @Getter
 public class User implements UserDetails {
     @Id
+    @Hidden
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Long id;
 
     @Column(unique = true, nullable = false)
@@ -30,6 +33,7 @@ public class User implements UserDetails {
     private String email;
 
     @Column(nullable = false, length = 64)
+    @Schema(hidden = false)
     @Size(min = 8, max = 64)
     private String password;
 
@@ -39,31 +43,37 @@ public class User implements UserDetails {
     private Profile profile;
 
     @Override
+    @Hidden
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("user"));
     }
 
     @Override
+    @Hidden
     public String getUsername() {
         return String.valueOf(id);
     }
 
     @Override
+    @Hidden
     public boolean isAccountNonExpired() {
         return true;
     }
 
     @Override
+    @Hidden
     public boolean isAccountNonLocked() {
         return true;
     }
 
     @Override
+    @Hidden
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
     @Override
+    @Hidden
     public boolean isEnabled() {
         return true;
     }

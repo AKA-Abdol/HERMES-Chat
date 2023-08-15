@@ -16,6 +16,7 @@ import java.util.Set;
 @Getter
 public class Chat {
     @Id
+    @Hidden
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

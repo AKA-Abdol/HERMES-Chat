@@ -19,6 +19,7 @@ import java.time.Instant;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Message {
     @Id
+    @Hidden
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
