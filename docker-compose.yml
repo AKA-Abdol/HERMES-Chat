@@ -1,0 +1,28 @@
+version: '3.2'
+services:
+    db:
+        image: postgres
+        restart: always
+        environment:
+            POSTGRES_PASSWORD: 123123
+            POSTGRES_USER: postgres
+            POSTGRES_DB: hermes_postgres
+        ports:
+            - 1234:5432
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+    backend:
+        restart: on-failure
+        build:
+            context: .
+        depends_on:
+            -   db
+        environment:
+            SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/hermes_postgres
+            SPRING_DATASOURCE_USERNAME: postgres
+            SPRING_DATASOURCE_PASSWORD: 123123
+            SPRING_JPA_HIBERNATE_DDL_AUTO: update
+        ports:
+            -   8080:8080
+volumes:
+    pgdata:

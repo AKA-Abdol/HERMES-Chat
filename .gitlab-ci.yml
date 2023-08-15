@@ -1,0 +1,8 @@
+build:
+  stage: build
+  only:
+   - main
+  before_script:
+  - docker compose down
+  script:
+  - docker compose up -d --build
