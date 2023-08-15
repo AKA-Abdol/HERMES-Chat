@@ -1,6 +1,7 @@
 package com.codestar.HAMI.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -35,10 +36,13 @@ public class Message {
     private byte[] file;
 
     @ManyToOne
+    @Hidden
     @JoinColumn(name = "chat_id", nullable = false)
     private Chat chat;
 
+
     @ManyToOne
+    @Hidden
     @JoinColumn(name = "profile_id", nullable = false)
     private Profile profile;
 }

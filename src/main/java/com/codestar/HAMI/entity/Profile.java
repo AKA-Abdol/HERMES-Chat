@@ -1,5 +1,6 @@
 package com.codestar.HAMI.entity;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -39,11 +40,14 @@ public class Profile {
     private byte[] picture;
 
     @OneToOne(mappedBy = "profile")
+    @Hidden
     private User user;
 
     @OneToMany
+    @Hidden
     private Set<Subscription> subscriptions = new HashSet<>();
 
     @OneToMany
+    @Hidden
     private Set<Message> messages = new HashSet<>();
 }

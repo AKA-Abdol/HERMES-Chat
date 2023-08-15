@@ -1,5 +1,6 @@
 package com.codestar.HAMI.entity;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -33,6 +34,7 @@ public class User implements UserDetails {
     private String password;
 
     @OneToOne()
+    @Hidden
     @JoinColumn(name = "profile_id", referencedColumnName = "id")
     private Profile profile;
 

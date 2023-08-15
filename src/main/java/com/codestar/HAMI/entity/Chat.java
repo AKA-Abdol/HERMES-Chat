@@ -1,5 +1,6 @@
 package com.codestar.HAMI.entity;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -36,9 +37,11 @@ public class Chat {
     private byte[] photo;
 
     @OneToMany
+    @Hidden
     private Set<Subscription> subscriptions = new HashSet<>();
 
     @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST)
+    @Hidden
     private Set<Message> messages = new HashSet<>();
 
     public void removeMessage(Message message) {
