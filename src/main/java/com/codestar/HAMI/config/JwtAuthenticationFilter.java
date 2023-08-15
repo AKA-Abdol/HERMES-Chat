@@ -11,6 +11,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -22,7 +23,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserService userService;
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(
@@ -30,19 +31,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        System.out.println("is it working!");
         final String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             System.out.println("getting out!");
             filterChain.doFilter(request, response);
             return;
         }
-
+        System.out.println("continuing...!");
         final String jwt = authHeader.substring(7);
+        System.out.println("Bearer " + jwt);
         final String userId = jwtService.extractUserId(jwt);
+        System.out.println(userId);
 
-        if (userId != null && SecurityContextHolder.getContext().getAuthentication() != null) {
-            UserDetails userDetails = userService.getUserById(Long.parseLong(userId));
+        if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            System.out.println("in the user id not null");
+            UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
             System.out.println(userDetails);
             if (jwtService.isValidToken(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -56,6 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
+        System.out.println("out!");
         filterChain.doFilter(request, response);
 
     }

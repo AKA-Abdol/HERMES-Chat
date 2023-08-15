@@ -25,12 +25,12 @@ public class SecurityConfig {
         return http
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/user/**")
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated()
-                )
+                .authorizeHttpRequests()
+                .requestMatchers("/user/**")
+                .permitAll()
+                .anyRequest()
+                .authenticated()
+                .and()
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
