@@ -1,6 +1,7 @@
 package com.codestar.HAMI.service;
 
 import com.codestar.HAMI.entity.Profile;
+import com.codestar.HAMI.entity.Subscription;
 import com.codestar.HAMI.entity.User;
 import com.codestar.HAMI.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,5 +33,11 @@ public class ProfileService {
 
     public List<Profile> getProfilesByUserNamePrefix(String username) {
         return profileRepository.findByUsernameStartsWithIgnoreCase(username);
+    }
+
+    public void addSubscription(Subscription subscription, long profileId) {
+        Profile profile = this.getProfileByProfileId(profileId);
+        profile.getSubscriptions().add(subscription);
+        profileRepository.save(profile);
     }
 }

@@ -40,7 +40,7 @@ public class ChatController {
 
     @GetMapping("{chatId}")
     public ChatModel getChat(@PathVariable long chatId) {
-        Chat chat = chatService.getChat(chatId);
+        Chat chat = chatService.getChatById(chatId);
         if(chat == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found chat by chatId");
         }

@@ -18,4 +18,8 @@ public class SubscriptionService {
         return subscriptionRepository.findByProfileId(profile.getId());
     }
 
+    public Subscription saveSubscription(Subscription subscription){
+        return subscriptionRepository.saveAndFlush(subscription);
+    }
+
 }
