@@ -4,6 +4,8 @@ import com.codestar.HAMI.entity.User;
 import com.codestar.HAMI.model.AuthenticationResponse;
 import com.codestar.HAMI.service.AuthenticationService;
 import com.codestar.HAMI.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
