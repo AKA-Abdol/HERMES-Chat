@@ -24,6 +24,7 @@ public class ProfileService {
             return null;
         }
         profile.setUser(user);
+        user.setProfile(profile);
         return profileRepository.saveAndFlush(profile);
     }
 

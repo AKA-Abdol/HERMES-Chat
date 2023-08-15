@@ -3,6 +3,7 @@ package com.codestar.HAMI.controller;
 import com.codestar.HAMI.entity.Profile;
 import com.codestar.HAMI.model.ProfileModel;
 import com.codestar.HAMI.service.ProfileService;
+import com.codestar.HAMI.service.UserAuthenticationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,10 +20,14 @@ public class ProfileController{
     @Autowired
     ProfileService profileService;
 
+    @Autowired
+    UserAuthenticationService userAuthenticationService;
+
     @PostMapping()//TODO picture
     public ProfileModel createProfile(@RequestBody Profile profile){
         System.out.println("in profile");
-        profile = profileService.createProfile(profile, 1L);
+        Long userId = userAuthenticationService.getAuthenticatedUser().getId();
+        profile = profileService.createProfile(profile, userId);
         if (profile == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No User Found To Create Profile");
         }
