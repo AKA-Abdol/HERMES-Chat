@@ -20,11 +20,13 @@ public class ProfileController{
     ProfileService profileService;
 
     @PostMapping()//TODO picture
-    public ProfileModel createProfile(@Valid @RequestBody Profile profile){
+    public ProfileModel createProfile(@RequestBody Profile profile){
+        System.out.println("in profile");
         profile = profileService.createProfile(profile, 1L);
         if (profile == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No User Found To Create Profile");
         }
+        System.out.println("profile is not null!");
         return ProfileModel
                 .builder()
                 .firstName(profile.getFirstName())

@@ -32,8 +32,9 @@ public class User implements UserDetails {
     @Size(min = 8, max = 64)
     private String password;
 
-    @OneToMany
-    private Set<Profile> profiles;
+    @OneToOne()
+    @JoinColumn(name = "profile_id", referencedColumnName = "id")
+    private Profile profile;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

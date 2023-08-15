@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -37,8 +38,7 @@ public class Profile {
 
     private byte[] picture;
 
-    @ManyToOne
-    @JoinColumn(nullable = false, name = "user_id")
+    @OneToOne(mappedBy = "profile")
     private User user;
 
     @OneToMany
