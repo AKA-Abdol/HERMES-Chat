@@ -24,17 +24,9 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.register(user));
     }
 
-//    @PostMapping("/signin")
-//    public void userSignIn(@Valid @RequestBody User user){
-//        String
-//
-//        String password = user.getPassword();
-//        user = userService.getUserByEmail(user.getEmail());
-//        if (user == null){
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No user found by email");
-//        }
-//        if (!userService.authenticateUser(user, password)){
-//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong password");
-//        }
-//    }
+    @PostMapping("/login")
+    public ResponseEntity<AuthenticationResponse> userLogin(@RequestBody User user) {
+        return ResponseEntity.ok(authenticationService.login(user));
+    }
+
 }
