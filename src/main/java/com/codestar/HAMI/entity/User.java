@@ -32,7 +32,7 @@ public class User implements UserDetails {
     @Size(min = 8, max = 64)
     private String password;
 
-    @OneToOne()
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "profile_id", referencedColumnName = "id")
     private Profile profile;
 

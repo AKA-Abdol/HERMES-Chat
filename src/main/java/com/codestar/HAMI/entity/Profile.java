@@ -38,7 +38,7 @@ public class Profile {
 
     private byte[] picture;
 
-    @OneToOne(mappedBy = "profile")
+    @OneToOne(mappedBy = "profile", cascade = CascadeType.PERSIST)
     private User user;
 
     @OneToMany
