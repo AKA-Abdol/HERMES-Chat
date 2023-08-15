@@ -1,39 +1,45 @@
 package com.codestar.HAMI.service;
 
 import com.codestar.HAMI.entity.User;
-import com.codestar.HAMI.repository.UserRepository;
-import com.google.common.hash.Hashing;
+import com.codestar.HAMI.model.AuthenticationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.nio.charset.StandardCharsets;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class AuthenticationService {
-
     @Autowired
-    UserRepository userRepository;
+    private UserService userService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private JwtService jwtService;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElse(null);
+    public AuthenticationResponse register(User user) {
+        String password = user.getPassword();
+        user.setPassword(passwordEncoder.encode(password));
+        userService.addUser(user);
+        return AuthenticationResponse
+                .builder()
+                .token(jwtService.generateToken(user))
+                .build();
     }
 
-    public void addUser(User user) {
-        user.setPassword(getHashedPassword(user.getPassword()));
-        userRepository.saveAndFlush(user);
+    public AuthenticationResponse login(User userData) {
+        User user = userService.getUserByEmail(userData.getEmail());
+        if (user == null || user.getPassword().equals(passwordEncoder.encode(userData.getPassword())))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        String token = jwtService.generateToken(user);
+        return AuthenticationResponse
+                .builder()
+                .token(token)
+                .build();
     }
 
-    private String getHashedPassword(String password) {
-        return Hashing.sha256()
-                .hashString(password, StandardCharsets.UTF_8)
-                .toString();
-    }
-
-    public boolean authenticateUser(User user, String password) {
-        return user.getPassword().equals(getHashedPassword(password));
-    }
-
-    public User getUserById(long userId) {
-        return userRepository.findById(userId).orElse(null);
-    }
 }

@@ -15,10 +15,10 @@ public class ProfileService {
     ProfileRepository profileRepository;
 
     @Autowired
-    AuthenticationService authenticationService;
+    UserService userService;
 
     public Profile createProfile(Profile profile, long userId){
-        User user = authenticationService.getUserById(userId);
+        User user = userService.getUserById(userId);
         if (user == null){
             return null;
         }

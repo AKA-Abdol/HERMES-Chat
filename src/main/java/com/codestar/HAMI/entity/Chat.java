@@ -23,7 +23,6 @@ public class Chat {
     private String bio;
 
     @Column(nullable = false)
-    //@NotEmpty
     @NotNull
     @Enumerated(EnumType.STRING)
     private ChatTypeEnum chatType;
