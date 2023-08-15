@@ -3,15 +3,12 @@ package com.codestar.HAMI.service;
 import com.codestar.HAMI.entity.Chat;
 import com.codestar.HAMI.entity.Profile;
 import com.codestar.HAMI.entity.Subscription;
-import com.codestar.HAMI.model.ChatModel;
 import com.codestar.HAMI.repository.ChatRepository;
-import com.codestar.HAMI.repository.SubscriptionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,9 +16,6 @@ import java.util.List;
 public class ChatService {
     @Autowired
     ChatRepository chatRepository;
-
-    @Autowired
-    SubscriptionRepository subscriptionRepository;
 
     @Autowired
     ProfileService profileService;
@@ -47,7 +41,7 @@ public class ChatService {
 
     }
 
-    public Chat getChat(long chatId) {
+    public Chat getChatById(long chatId) {
         Chat chat = chatRepository.findById(chatId).orElse(null);
         return chat;
     }

@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -41,8 +42,8 @@ public class Profile {
     private User user;
 
     @OneToMany
-    private Set<Subscription> subscriptions;
+    private Set<Subscription> subscriptions = new HashSet<>();
 
     @OneToMany
-    private Set<Message> messages;
+    private Set<Message> messages = new HashSet<>();
 }

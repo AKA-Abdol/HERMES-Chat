@@ -17,6 +17,6 @@ public class ExceptionHandlerService extends ResponseEntityExceptionHandler {
             RuntimeException ex, WebRequest request) {
         String bodyOfResponse = "Duplicate data";
         return handleExceptionInternal(ex, bodyOfResponse,
-                new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+                new HttpHeaders(), HttpStatus.CONFLICT, request);
     }
 }

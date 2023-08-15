@@ -1,12 +1,12 @@
 package com.codestar.HAMI.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -36,8 +36,12 @@ public class Chat {
     private byte[] photo;
 
     @OneToMany
-    private Set<Subscription> subscriptions;
+    private Set<Subscription> subscriptions = new HashSet<>();
 
-    @OneToMany
-    private Set<Message> messages;
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST)
+    private Set<Message> messages = new HashSet<>();
+
+    public void removeMessage(Message message) {
+        messages.remove(message);
+    }
 }
