@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/profile")
-public class ProfileController{
+public class ProfileController {
 
     @Autowired
     ProfileService profileService;
@@ -24,10 +24,10 @@ public class ProfileController{
     UserAuthenticationService userAuthenticationService;
 
     @PostMapping()//TODO picture
-    public ProfileModel createProfile(@Valid @RequestBody Profile profile){
+    public ProfileModel createProfile(@Valid @RequestBody Profile profile) {
         Long userId = userAuthenticationService.getAuthenticatedUser().getId();
         profile = profileService.createProfile(profile, userId);
-        if (profile == null){
+        if (profile == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No User Found To Create Profile");
         }
         System.out.println("profile is not null!");
@@ -42,9 +42,9 @@ public class ProfileController{
     }
 
     @GetMapping("/{profileId}")
-    public ProfileModel getProfileById(@PathVariable Long profileId){
+    public ProfileModel getProfileById(@PathVariable Long profileId) {
         Profile profile = profileService.getProfileByProfileId(profileId);
-        if (profile == null){
+        if (profile == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No profile found");
         }
         return ProfileModel
@@ -58,9 +58,9 @@ public class ProfileController{
     }
 
     @GetMapping("/me")
-    public ProfileModel getMyProfile(){
+    public ProfileModel getMyProfile() {
         Profile profile = profileService.getLoggedInProfile();
-        if (profile == null){
+        if (profile == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No profile found");
         }
         return ProfileModel
@@ -74,7 +74,7 @@ public class ProfileController{
     }
 
     @GetMapping("/search")
-    public List<ProfileModel> getSearchedProfile(@RequestParam(required = true) String username){
+    public List<ProfileModel> getSearchedProfile(@RequestParam(required = true) String username) {
         List<Profile> profiles = profileService.getProfilesByUserNamePrefix(username);
         return profiles.stream()
                 .map(profile -> ProfileModel
@@ -89,8 +89,8 @@ public class ProfileController{
     }
 
     @GetMapping("/username")
-    public void isUserNameUnique(@RequestParam(required = true) String username){
-        if (profileService.isUserNameUsed(username)){
+    public void isOccupiedUserName(@RequestParam(required = true) String search) {
+        if (profileService.isOccupiedUserName(search)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "username is already used");
         }
     }
