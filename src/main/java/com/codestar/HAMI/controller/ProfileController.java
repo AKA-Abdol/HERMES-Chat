@@ -87,4 +87,11 @@ public class ProfileController{
                         .build())
                 .collect(Collectors.toList());
     }
+
+    @GetMapping("/username")
+    public void isUserNameUnique(@RequestParam(required = true) String username){
+        if (profileService.isUserNameUsed(username)){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "username is already used");
+        }
+    }
 }

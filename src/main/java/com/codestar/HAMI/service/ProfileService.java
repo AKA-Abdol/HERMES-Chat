@@ -53,4 +53,11 @@ public class ProfileService {
         }
         return profile;
     }
+
+    public boolean isUserNameUsed(String username) {
+        if (profileRepository.findByUsernameIgnoreCase(username) == null){
+            return false;
+        }
+        return true;
+    }
 }
