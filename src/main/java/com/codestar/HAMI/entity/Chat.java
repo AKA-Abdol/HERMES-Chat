@@ -37,7 +37,7 @@ public class Chat {
     @Size(max = 10_000_000)
     private byte[] photo;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "chat")
     @Hidden
     private Set<Subscription> subscriptions = new HashSet<>();
 

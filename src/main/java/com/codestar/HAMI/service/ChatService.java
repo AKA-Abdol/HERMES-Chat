@@ -42,8 +42,11 @@ public class ChatService {
     }
 
     public Chat getChatById(long chatId) {
-        Chat chat = chatRepository.findById(chatId).orElse(null);
-        return chat;
+        return chatRepository
+                .findById(chatId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Chat Not Found!"
+                ));
     }
 
     public Chat updateChat(Long chatId ,Chat chat) {

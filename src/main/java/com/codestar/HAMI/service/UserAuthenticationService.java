@@ -2,20 +2,29 @@ package com.codestar.HAMI.service;
 
 import com.codestar.HAMI.entity.Profile;
 import com.codestar.HAMI.entity.User;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UserAuthenticationService {
     public User getAuthenticatedUser() {
-        return (User) SecurityContextHolder
+        User user = (User) SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getPrincipal();
+        if (user == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User Not Found!");
+
+        return user;
     }
 
     public Profile getAuthenticatedProfile() {
         User user = getAuthenticatedUser();
-        return user.getProfile();
+        Profile profile = user.getProfile();
+        if (profile == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile Not Found");
+        return profile;
     }
 }
