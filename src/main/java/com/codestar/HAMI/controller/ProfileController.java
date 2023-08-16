@@ -24,7 +24,7 @@ public class ProfileController {
     UserAuthenticationService userAuthenticationService;
 
     @PostMapping()//TODO picture
-    public ProfileModel createProfile(@Valid @RequestBody Profile profile) {
+    public ProfileModel createProfile(@RequestBody Profile profile) {
         Long userId = userAuthenticationService.getAuthenticatedUser().getId();
         profile = profileService.createProfile(profile, userId);
         if (profile == null) {
