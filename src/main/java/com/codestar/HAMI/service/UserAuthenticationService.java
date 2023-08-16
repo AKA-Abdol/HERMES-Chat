@@ -22,6 +22,9 @@ public class UserAuthenticationService {
 
     public Profile getAuthenticatedProfile() {
         User user = getAuthenticatedUser();
-        return user.getProfile(); // when a user is valid but profile not found!
+        Profile profile = user.getProfile();
+        if (profile == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile Not Found");
+        return profile;
     }
 }

@@ -44,7 +44,7 @@ public class Profile {
     @Hidden
     private User user;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "profile")
     @Hidden
     private Set<Subscription> subscriptions = new HashSet<>();
 
