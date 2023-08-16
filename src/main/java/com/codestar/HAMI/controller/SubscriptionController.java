@@ -56,4 +56,5 @@ public class SubscriptionController {
         Chat chat = chatService.getChatById(chatId);
         subscriptionService.createSubscription(chat, profiles);
     }
+
 }
