@@ -41,7 +41,7 @@ public class Chat {
     @Hidden
     private Set<Subscription> subscriptions = new HashSet<>();
 
-    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST)
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
     @Hidden
     private Set<Message> messages = new HashSet<>();
 

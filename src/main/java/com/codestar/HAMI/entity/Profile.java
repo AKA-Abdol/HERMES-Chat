@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -48,7 +47,11 @@ public class Profile {
     @Hidden
     private Set<Subscription> subscriptions = new HashSet<>();
 
-    @OneToMany
     @Hidden
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "profile")
     private Set<Message> messages = new HashSet<>();
+
+    public void removeMessage(Message message) {
+        messages.remove(message);
+    }
 }

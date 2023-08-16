@@ -4,6 +4,7 @@ import com.codestar.HAMI.entity.Profile;
 import com.codestar.HAMI.entity.Subscription;
 import com.codestar.HAMI.entity.User;
 import com.codestar.HAMI.repository.ProfileRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +19,12 @@ public class ProfileService {
     @Autowired
     UserService userService;
 
-    public Profile createProfile(Profile profile, long userId){
+    @Autowired
+    UserAuthenticationService userAuthenticationService;
+
+    public Profile createProfile(Profile profile, long userId) {
         User user = userService.getUserById(userId);
-        if (user == null){
+        if (user == null) {
             return null;
         }
         profile.setUser(user);
@@ -40,5 +44,13 @@ public class ProfileService {
         Profile profile = this.getProfileByProfileId(profileId);
         profile.getSubscriptions().add(subscription);
         profileRepository.save(profile);
+    }
+
+    public Profile getLoggedInProfile() {
+        Profile profile = userAuthenticationService.getAuthenticatedProfile();
+        if (profile == null) {
+            throw new EntityNotFoundException("Please log in into a profile");
+        }
+        return profile;
     }
 }
