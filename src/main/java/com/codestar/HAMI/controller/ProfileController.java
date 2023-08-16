@@ -24,8 +24,7 @@ public class ProfileController{
     UserAuthenticationService userAuthenticationService;
 
     @PostMapping()//TODO picture
-    public ProfileModel createProfile(@RequestBody Profile profile){
-        System.out.println("in profile");
+    public ProfileModel createProfile(@Valid @RequestBody Profile profile){
         Long userId = userAuthenticationService.getAuthenticatedUser().getId();
         profile = profileService.createProfile(profile, userId);
         if (profile == null){
@@ -60,7 +59,7 @@ public class ProfileController{
 
     @GetMapping("/me")
     public ProfileModel getMyProfile(){
-        Profile profile = profileService.getProfileByProfileId(1L);//TODO getProfileId by jwt
+        Profile profile = profileService.getLoggedInProfile();
         if (profile == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No profile found");
         }

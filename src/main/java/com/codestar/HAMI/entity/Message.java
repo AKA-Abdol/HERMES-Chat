@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 
@@ -17,6 +18,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
+@EntityListeners(AuditingEntityListener.class)
 public class Message {
     @Id
     @Hidden
@@ -36,14 +38,13 @@ public class Message {
     @Size(max = 10_000_000)
     private byte[] file;
 
-    @ManyToOne
     @Hidden
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "chat_id", nullable = false)
     private Chat chat;
 
-
-    @ManyToOne
     @Hidden
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id", nullable = false)
     private Profile profile;
 }
