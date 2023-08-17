@@ -1,7 +1,9 @@
-FROM maven:alpine as build
+FROM maven:3.8.3-openjdk-17 as build
 ENV HOME=/usr/app
 RUN mkdir -p $HOME
 WORKDIR $HOME
+ADD pom.xml $HOME
+RUN mvn verify --fail-never
 ADD . $HOME
 RUN mvn package
 
