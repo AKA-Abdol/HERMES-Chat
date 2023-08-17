@@ -1,0 +1,16 @@
+version: "1.0"
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: 123123
+      POSTGRES_USER: postgres
+      POSTGRES_DB: hermes_postgres
+    ports:
+      - 1234:5432
+    volumes:
+      - localpgdata:/var/lib/postgresql/data
+
+volumes:
+  localpgdata:
