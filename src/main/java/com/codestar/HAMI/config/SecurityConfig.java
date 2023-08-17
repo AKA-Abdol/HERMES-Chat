@@ -23,7 +23,8 @@ public class SecurityConfig {
             HttpSecurity http
     ) throws Exception {
         return http
-                .cors(AbstractHttpConfigurer::disable)
+                .cors()
+                .and()
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
