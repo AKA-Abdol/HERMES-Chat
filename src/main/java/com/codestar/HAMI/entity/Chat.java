@@ -1,5 +1,6 @@
 package com.codestar.HAMI.entity;
 
+import com.codestar.HAMI.model.MessagePreview;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -7,6 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,6 +21,10 @@ public class Chat {
     @Hidden
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(length = 50)
+    @Size(min = 5, max = 100)
+    private String name;
 
     @Column(length = 100)
     @Size(max = 100)
@@ -47,5 +53,29 @@ public class Chat {
 
     public void removeMessage(Message message) {
         messages.remove(message);
+    }
+
+    public String getName(Profile profile) {
+        if (chatType != ChatTypeEnum.PV)
+            return name;
+        Profile destinationProfile = subscriptions
+                .stream()
+                .map(Subscription::getProfile)
+                .filter(subscriptionProfile -> subscriptionProfile != profile)
+                .toList()
+                .get(0);
+        return destinationProfile.getFirstName() + destinationProfile.getLastName();
+    }
+
+    public MessagePreview getLastMessagePreview() {
+        if (messages.size() == 0)
+            return null;
+
+        return messages
+                .stream()
+                .sorted(Comparator.comparing(Message::getCreatedAt))
+                .toList()
+                .get(0)
+                .getPreview();
     }
 }
