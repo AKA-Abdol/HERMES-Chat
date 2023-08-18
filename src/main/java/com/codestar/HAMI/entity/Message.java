@@ -1,5 +1,6 @@
 package com.codestar.HAMI.entity;
 
+import com.codestar.HAMI.model.MessagePreview;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.*;
@@ -47,4 +48,12 @@ public class Message {
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id", nullable = false)
     private Profile profile;
+
+    public MessagePreview getPreview() {
+        return MessagePreview
+                .builder()
+                .sentAt(createdAt)
+                .data(text)
+                .build();
+    }
 }

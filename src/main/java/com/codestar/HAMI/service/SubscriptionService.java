@@ -24,7 +24,7 @@ public class SubscriptionService {
         return subscriptionRepository.findByProfileId(profile.getId());
     }
 
-    public Subscription saveSubscription(Subscription subscription){
+    public Subscription saveSubscription(Subscription subscription) {
         return subscriptionRepository.saveAndFlush(subscription);
     }
 
@@ -71,6 +71,14 @@ public class SubscriptionService {
     public void createSubscription(Chat chat, ArrayList<Profile> profiles) {
         profiles.removeAll(Collections.singleton(null));
         profiles.forEach(profile -> createSubscription(chat, profile));
+    }
+
+    public List<Chat> getChatsByProfile(Profile profile) {
+        return subscriptionRepository
+                .findByProfile_Id(profile.getId())
+                .stream()
+                .map(Subscription::getChat)
+                .toList();
     }
 
 }
