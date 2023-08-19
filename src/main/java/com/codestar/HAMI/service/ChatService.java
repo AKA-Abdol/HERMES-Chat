@@ -1,5 +1,6 @@
 package com.codestar.HAMI.service;
 
+import com.codestar.HAMI.entity.*;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.codestar.HAMI.elasticsearch.model.ChatElasticModel;
@@ -8,6 +9,7 @@ import com.codestar.HAMI.entity.Chat;
 import com.codestar.HAMI.entity.Profile;
 import com.codestar.HAMI.entity.Subscription;
 import com.codestar.HAMI.repository.ChatRepository;
+import com.codestar.HAMI.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -80,6 +82,32 @@ public class ChatService {
         chat = chatRepository.saveAndFlush(chat);
         chatElasticService.addChatToIndex(chat);
         return chat;
+    }
+
+    public Chat createChatForChannel(String name, File photo, String description) {
+        Chat chat = null;
+        chat.setName(name);
+        chat.setPhoto(photo.getData());
+        chat.setDescription(description);
+        chat.setChatType(ChatTypeEnum.CHANNEL);
+        return chatRepository.save(chat);
+    }
+
+    public Chat createChatForGroup(String name, File photo) {
+        Chat chat = null;
+        chat.setName(name);
+        chat.setPhoto(photo.getData());
+        chat.setChatType(ChatTypeEnum.GROUP);
+        return chatRepository.save(chat);
+    }
+
+    public Chat createChatForPv(Long profileId) {
+        Chat chat = null;
+        Profile profile = profileService.getProfileById(profileId);
+        chat.setName(profile.getFirstName() + " " + profile.getLastName());
+        chat.setPhoto(profile.getPhoto());
+        chat.setChatType(ChatTypeEnum.PV);
+        return chatRepository.save(chat);
     }
 
     public List<Chat> getChatsByUserNameFuzziness(String username) throws IOException {

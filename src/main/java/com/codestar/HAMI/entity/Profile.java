@@ -38,8 +38,7 @@ public class Profile {
     @Column(length = 100)
     private String bio;
 
-    @JsonIgnore
-    private byte[] picture;
+    private byte[] photo;
 
     @Hidden
     @JsonIgnore
