@@ -24,6 +24,16 @@ services:
             SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
         ports:
             -   8080:8080
+    elasticsearch:
+        image: elasticsearch:8.8.0
+        restart: always
+        ports:
+            - 9200:9200
+            - 9300:9300
+        environment:
+            - discovery.type=single-node
+            - xpack.security.enabled=false
+
 #    dbadmin:
 #        image: dpage/pgadmin4
 #        restart: always
@@ -32,5 +42,6 @@ services:
 #            PGADMIN_DEFAULT_PASSWORD: 123123
 #        ports:
 #            - "5050:80"
+
 volumes:
     pgdata:

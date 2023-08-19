@@ -25,7 +25,7 @@ public class ChatService {
 
 
     public List<Chat> getAllChats(Long profileId) {
-        Profile profile = profileService.getProfileByProfileId(profileId);
+        Profile profile = profileService.getProfileById(profileId);
         if(profile == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No Profile Found with profile id.");
         }
