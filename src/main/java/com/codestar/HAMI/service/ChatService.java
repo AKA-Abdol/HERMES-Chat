@@ -9,7 +9,6 @@ import com.codestar.HAMI.entity.Chat;
 import com.codestar.HAMI.entity.Profile;
 import com.codestar.HAMI.entity.Subscription;
 import com.codestar.HAMI.repository.ChatRepository;
-import com.codestar.HAMI.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -84,25 +83,25 @@ public class ChatService {
         return chat;
     }
 
-    public Chat createChatForChannel(String name, File photo, String description) {
-        Chat chat = null;
+    public Chat createChatForChannel(String name, byte[] photo, String description) {
+        Chat chat = new Chat();
         chat.setName(name);
-        chat.setPhoto(photo.getData());
+        chat.setPhoto(photo);
         chat.setDescription(description);
         chat.setChatType(ChatTypeEnum.CHANNEL);
         return chatRepository.save(chat);
     }
 
-    public Chat createChatForGroup(String name, File photo) {
-        Chat chat = null;
+    public Chat createChatForGroup(String name, byte[] photo) {
+        Chat chat = new Chat();
         chat.setName(name);
-        chat.setPhoto(photo.getData());
+        chat.setPhoto(photo);
         chat.setChatType(ChatTypeEnum.GROUP);
         return chatRepository.save(chat);
     }
 
     public Chat createChatForPv(Long profileId) {
-        Chat chat = null;
+        Chat chat = new Chat();
         Profile profile = profileService.getProfileById(profileId);
         chat.setName(profile.getFirstName() + " " + profile.getLastName());
         chat.setPhoto(profile.getPhoto());

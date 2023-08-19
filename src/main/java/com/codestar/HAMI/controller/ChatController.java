@@ -7,7 +7,6 @@ import com.codestar.HAMI.model.ChatModel;
 import com.codestar.HAMI.model.CreateChannelRequest;
 import com.codestar.HAMI.model.CreateGroupRequest;
 import com.codestar.HAMI.repository.ChatRepository;
-import com.codestar.HAMI.repository.ProfileRepository;
 import com.codestar.HAMI.service.ChatService;
 import com.codestar.HAMI.service.ProfileService;
 import com.codestar.HAMI.service.SubscriptionService;
@@ -35,8 +34,9 @@ public class ChatController {
     @Autowired
     ProfileService profileService;
 
-    @GetMapping("/{profileId}")
-    public List<ChatModel> getChats(@PathVariable Long profileId) {
+    @GetMapping("")
+    public List<ChatModel> getChats() {
+        Long profileId = userAuthenticationService.getAuthenticatedProfile().getId();
         List<Chat> chats = chatService.getAllChats(profileId);
         List<ChatModel> chatModels = new ArrayList<>();
         for(Chat chat : chats) {
@@ -52,7 +52,7 @@ public class ChatController {
 
     }
 
-    @GetMapping("{chatId}")
+    @GetMapping("/{chatId}")
     public ChatModel getChat(@PathVariable long chatId) {
         Chat chat = chatService.getChatById(chatId);
         if (chat == null)
@@ -71,11 +71,13 @@ public class ChatController {
 
     @PutMapping("/{chatId}")
     public ChatModel updateChat(@PathVariable Long chatId, @RequestBody Chat chatDetail) {
-        Chat chat = chatService.updateChat(chatId, chatDetail);
+        Chat chat = chatService.getChatById(chatId);
         if (chat == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Chat id doesn't exist!");
         if(chat.getChatType() == ChatTypeEnum.PV)
             throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "you can't access with chatId.");
+
+        chat = chatService.updateChat(chatId,chatDetail);
 
         return ChatModel.builder()
                 .chatId(chat.getId())
@@ -98,8 +100,6 @@ public class ChatController {
                         .map(profileId -> profileService.getProfileById(profileId))
                         .toList());
         profiles.add(profile);
-        subscriptionService.createSubscription(chat, profiles);
-
         subscriptionService.createSubscription(chat, profiles);
 
         return ChatModel.builder()
@@ -134,8 +134,8 @@ public class ChatController {
                 .build();
     }
 
-    @PostMapping("/PV")
-    public ChatModel createPv(@Valid @RequestBody Long profileId) {
+    @PostMapping("/PV/{profileId}")
+    public ChatModel createPv(@Valid @PathVariable Long profileId) {
         Profile profile = userAuthenticationService.getAuthenticatedProfile();
         Chat chat = chatService.createChatForPv(profileId);
 

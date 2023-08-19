@@ -96,6 +96,7 @@ public class ProfileController {
                         .builder()
                         .id(profile.getId())
                         .username(profile.getUsername())
+                        .chatType(ChatTypeEnum.PV)
                         .photo(profile.getPhoto())
                         .build())
                 .collect(Collectors.toList());

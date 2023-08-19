@@ -50,6 +50,7 @@ public class Message {
     @JoinColumn(name = "profile_id", nullable = false)
     private Profile profile;
 
+    @Hidden
     public MessagePreview getPreview() {
         return MessagePreview
                 .builder()
