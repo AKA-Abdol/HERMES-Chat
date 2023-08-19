@@ -35,7 +35,24 @@ public class ChatController {
     @Autowired
     ProfileService profileService;
 
-    @GetMapping("/{chatId}")
+    @GetMapping("/{profileId}")
+    public List<ChatModel> getChats(@PathVariable Long profileId) {
+        List<Chat> chats = chatService.getAllChats(profileId);
+        List<ChatModel> chatModels = new ArrayList<>();
+        for(Chat chat : chats) {
+            chatModels.add(ChatModel.builder()
+                            .chatId(chat.getId())
+                            .bio(chat.getBio())
+                            .chatType(chat.getChatType())
+                            .description(chat.getDescription())
+                            .photo(chat.getPhoto())
+                            .build());
+        }
+        return chatModels;
+
+    }
+
+    @GetMapping("{chatId}")
     public ChatModel getChat(@PathVariable long chatId) {
         Chat chat = chatService.getChatById(chatId);
         if (chat == null)
