@@ -21,7 +21,7 @@ public class ChatController {
     @Autowired
     ChatRepository chatRepository;
 
-    @GetMapping("/get/{profileId}")
+    @GetMapping("/{profileId}")
     public List<ChatModel> getChats(@PathVariable Long profileId) {
         List<Chat> chats = chatService.getAllChats(profileId);
         List<ChatModel> chatModels = new ArrayList<>();
