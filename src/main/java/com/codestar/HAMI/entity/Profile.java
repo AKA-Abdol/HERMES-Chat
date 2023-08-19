@@ -59,6 +59,7 @@ public class Profile {
         messages.remove(message);
     }
 
+    @Hidden
     public void setProfile(Profile profileData) {
         username = profileData.getUsername();
         firstName = profileData.getFirstName();
