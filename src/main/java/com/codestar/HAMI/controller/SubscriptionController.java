@@ -53,7 +53,7 @@ public class SubscriptionController {
                 profilesSubscriptionRequest
                         .getProfiles()
                         .stream()
-                        .map(profileId -> profileService.getProfileByProfileId(profileId))
+                        .map(profileId -> profileService.getProfileById(profileId))
                         .toList()
         );
         Chat chat = chatService.getChatById(chatId);
