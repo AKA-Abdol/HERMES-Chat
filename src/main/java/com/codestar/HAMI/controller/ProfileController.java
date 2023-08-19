@@ -1,10 +1,13 @@
 package com.codestar.HAMI.controller;
 
+import com.codestar.HAMI.elasticsearch.model.ProfileElasticModel;
+import com.codestar.HAMI.entity.Chat;
+import com.codestar.HAMI.entity.ChatTypeEnum;
 import com.codestar.HAMI.entity.Profile;
 import com.codestar.HAMI.model.ProfileModel;
+import com.codestar.HAMI.service.ChatService;
 import com.codestar.HAMI.service.ProfileService;
 import com.codestar.HAMI.service.UserAuthenticationService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -23,6 +27,9 @@ public class ProfileController {
 
     @Autowired
     UserAuthenticationService userAuthenticationService;
+
+    @Autowired
+    ChatService chatService;
 
     @PostMapping()//TODO picture
     public ProfileModel createProfile(@RequestBody Profile profile) {
@@ -38,7 +45,7 @@ public class ProfileController {
                 .lastName(profile.getLastName())
                 .bio(profile.getBio())
                 .username(profile.getUsername())
-                .picture(profile.getPicture())
+                .photo(profile.getPhoto())
                 .build();
     }
 
@@ -54,7 +61,7 @@ public class ProfileController {
                 .lastName(profile.getLastName())
                 .bio(profile.getBio())
                 .username(profile.getUsername())
-                .picture(profile.getPicture())
+                .photo(profile.getPhoto())
                 .build();
     }
 
@@ -70,28 +77,43 @@ public class ProfileController {
                 .lastName(profile.getLastName())
                 .bio(profile.getBio())
                 .username(profile.getUsername())
-                .picture(profile.getPicture())
+                .photo(profile.getPhoto())
                 .build();
     }
 
     @GetMapping("/search")
-    public List<ProfileModel> getSearchedProfile(@RequestParam(required = true) String username){
+    public List<ProfileElasticModel> getSearchedProfileAndChats(@RequestParam(required = true) String username){
         List<Profile> profiles = null;
+        List<Chat> chats = null;
+        List<ProfileElasticModel> result = null;
         try {
-            profiles = profileService.getProfilesByUserNamePrefix(username);
+            profiles = profileService.getProfilesByUserNameFuzziness(username);
+            chats = chatService.getChatsByUserNameFuzziness(username);
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something were wrong");
         }
-        return profiles.stream()
-                .map(profile -> ProfileModel
+         result = profiles.stream()
+                .map(profile -> ProfileElasticModel
                         .builder()
-                        .firstName(profile.getFirstName())
-                        .lastName(profile.getLastName())
-                        .bio(profile.getBio())
+                        .id(profile.getId())
                         .username(profile.getUsername())
-                        .picture(profile.getPicture())
+                        .photo(profile.getPhoto())
                         .build())
                 .collect(Collectors.toList());
+        result.addAll(
+                chats.stream()
+                        .filter(chat -> !chat.getChatType().equals(ChatTypeEnum.PV))
+                        .map(chat -> ProfileElasticModel
+                                .builder()
+                                .id(chat.getId())
+                                .username(chat.getName())
+                                .picture(chat.getPhoto())
+                                .chatType(chat.getChatType())
+                                .build()
+                        )
+                        .toList()
+        );
+        return result;
     }
 
     @GetMapping("/username")
@@ -99,5 +121,12 @@ public class ProfileController {
         if (profileService.isOccupiedUserName(search)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "username is already used");
         }
+    }
+
+    @PutMapping("/{profileId}")
+    public Profile updateProfile(
+            @RequestBody Profile profileData, @PathVariable Long profileId
+    ) {
+        return profileService.updateProfile(profileData, profileId);
     }
 }
