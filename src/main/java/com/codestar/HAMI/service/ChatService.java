@@ -1,5 +1,9 @@
 package com.codestar.HAMI.service;
 
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import com.codestar.HAMI.elasticsearch.model.ChatElasticModel;
+import com.codestar.HAMI.elasticsearch.service.ChatElasticService;
 import com.codestar.HAMI.entity.Chat;
 import com.codestar.HAMI.entity.Profile;
 import com.codestar.HAMI.entity.Subscription;
@@ -9,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +27,9 @@ public class ChatService {
 
     @Autowired
     SubscriptionService subscriptionService;
+
+    @Autowired
+    ChatElasticService chatElasticService;
 
 
     public List<Chat> getAllChats(Long profileId) {
@@ -56,18 +64,33 @@ public class ChatService {
         System.out.println(updateChat.getId());
 
         if(updateChat != null) {
+            updateChat.setName(chat.getName());
             updateChat.setBio(chat.getBio());
             updateChat.setChatType(chat.getChatType());
             updateChat.setDescription(chat.getDescription());
 
             chatRepository.save(updateChat);
+            chatElasticService.addChatToIndex(updateChat);
         }
 
         return updateChat;
     }
 
     public Chat createChat(Chat chat) {
-        return chatRepository.save(chat);
+        chat = chatRepository.saveAndFlush(chat);
+        chatElasticService.addChatToIndex(chat);
+        return chat;
     }
 
+    public List<Chat> getChatsByUserNameFuzziness(String username) throws IOException {
+        SearchResponse<ChatElasticModel> searchResponse =  chatElasticService.matchChatsWithUsername(username);
+
+        List<Hit<ChatElasticModel>> listOfHits= searchResponse.hits().hits();
+        List<Chat> chats  = new ArrayList<>();
+        for(Hit<ChatElasticModel> hit : listOfHits){
+            Long chatId = hit.source().getId();
+            chats.add(this.getChatById(chatId));
+        }
+        return chats;
+    }
 }
