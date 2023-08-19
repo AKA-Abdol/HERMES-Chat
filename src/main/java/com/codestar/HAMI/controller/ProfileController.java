@@ -15,7 +15,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -107,7 +106,7 @@ public class ProfileController {
                                 .builder()
                                 .id(chat.getId())
                                 .username(chat.getName())
-                                .picture(chat.getPhoto())
+                                .photo(chat.getPhoto())
                                 .chatType(chat.getChatType())
                                 .build()
                         )

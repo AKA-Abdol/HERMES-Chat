@@ -21,5 +21,5 @@ public class ProfileElasticModel {
     private String username;
     @Enumerated(EnumType.STRING)
     private ChatTypeEnum chatType;
-    private byte[] picture;
+    private byte[] photo;
 }
