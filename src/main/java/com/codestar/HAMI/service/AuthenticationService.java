@@ -21,25 +21,17 @@ public class AuthenticationService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    public AuthenticationResponse register(User user) {
+    public String register(User user) {
         String password = user.getPassword();
         user.setPassword(passwordEncoder.encode(password));
         userService.addUser(user);
-        return AuthenticationResponse
-                .builder()
-                .token(jwtService.generateToken(user))
-                .build();
+        return jwtService.generateToken(user);
     }
 
-    public AuthenticationResponse login(User userData) {
-        User user = userService.getUserByEmail(userData.getEmail());
-        if (user == null || user.getPassword().equals(passwordEncoder.encode(userData.getPassword())))
+    public String login(User user) {
+        if (user == null || user.getPassword().equals(passwordEncoder.encode(user.getPassword())))
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        String token = jwtService.generateToken(user);
-        return AuthenticationResponse
-                .builder()
-                .token(token)
-                .build();
+        return jwtService.generateToken(user);
     }
 
 }

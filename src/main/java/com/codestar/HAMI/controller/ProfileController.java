@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -121,5 +122,12 @@ public class ProfileController {
         if (profileService.isOccupiedUserName(search)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "username is already used");
         }
+    }
+
+    @PutMapping("/{profileId}")
+    public Profile updateProfile(
+            @RequestBody Profile profileData, @PathVariable Long profileId
+    ) {
+        return profileService.updateProfile(profileData, profileId);
     }
 }

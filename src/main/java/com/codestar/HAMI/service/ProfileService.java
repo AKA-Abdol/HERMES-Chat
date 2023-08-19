@@ -10,7 +10,9 @@ import com.codestar.HAMI.entity.User;
 import com.codestar.HAMI.repository.ProfileRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -75,5 +77,13 @@ public class ProfileService {
 
     public boolean isOccupiedUserName(String username) {
         return profileRepository.findByUsernameIgnoreCase(username) != null;
+    }
+
+    public Profile updateProfile(Profile profileData, Long profileId) {
+        Profile profile = profileRepository
+                .findById(profileId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile Not Found!"));
+        profile.setProfile(profileData);
+        return profileRepository.save(profile);
     }
 }

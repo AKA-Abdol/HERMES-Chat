@@ -17,9 +17,6 @@ public class ProfileModel {
     private String lastName;
     private String bio;
     private byte[] picture;
-    private User user;
-    private Set<Subscription> subscriptions;
-    private Set<Message> messages;
 
     public String getFullName() {
         return firstName + " " + lastName;

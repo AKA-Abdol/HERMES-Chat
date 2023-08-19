@@ -13,6 +13,4 @@ public class MessageModel {
     private String text;
     private Instant createdAt;
     private byte[] file;
-    private Chat chat;
-    private Profile profile;
 }

@@ -1,5 +1,6 @@
 package com.codestar.HAMI.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -37,21 +38,32 @@ public class Profile {
     @Column(length = 100)
     private String bio;
 
+    @JsonIgnore
     private byte[] picture;
 
-    @OneToOne(mappedBy = "profile")
     @Hidden
+    @JsonIgnore
+    @OneToOne(mappedBy = "profile")
     private User user;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "profile")
     @Hidden
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "profile")
     private Set<Subscription> subscriptions = new HashSet<>();
 
     @Hidden
+    @JsonIgnore
     @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "profile")
     private Set<Message> messages = new HashSet<>();
 
     public void removeMessage(Message message) {
         messages.remove(message);
+    }
+
+    public void setProfile(Profile profileData) {
+        username = profileData.getUsername();
+        firstName = profileData.getFirstName();
+        lastName = profileData.getLastName();
+        bio = profileData.getBio();
     }
 }
