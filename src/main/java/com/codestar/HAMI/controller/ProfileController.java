@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,9 +43,9 @@ public class ProfileController {
     }
 
     @GetMapping("/{profileId}")
-    public ProfileModel getProfileById(@PathVariable Long profileId) {
-        Profile profile = profileService.getProfileByProfileId(profileId);
-        if (profile == null) {
+    public ProfileModel getProfileById(@PathVariable Long profileId){
+        Profile profile = profileService.getProfileById(profileId);
+        if (profile == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No profile found");
         }
         return ProfileModel
@@ -74,8 +75,13 @@ public class ProfileController {
     }
 
     @GetMapping("/search")
-    public List<ProfileModel> getSearchedProfile(@RequestParam(required = true) String username) {
-        List<Profile> profiles = profileService.getProfilesByUserNamePrefix(username);
+    public List<ProfileModel> getSearchedProfile(@RequestParam(required = true) String username){
+        List<Profile> profiles = null;
+        try {
+            profiles = profileService.getProfilesByUserNamePrefix(username);
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something were wrong");
+        }
         return profiles.stream()
                 .map(profile -> ProfileModel
                         .builder()

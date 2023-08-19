@@ -76,7 +76,7 @@ public class MessageService {
 
     private Subscription createSubscription(Chat chat, Long profileId) {
         Subscription subscription = new Subscription();
-        subscription.setProfile(profileService.getProfileByProfileId(profileId));
+        subscription.setProfile(profileService.getProfileById(profileId));
         subscription.setChat(chat);
         return subscription;
     }
