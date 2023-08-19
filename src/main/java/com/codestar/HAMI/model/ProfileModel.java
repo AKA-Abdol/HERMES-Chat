@@ -16,7 +16,7 @@ public class ProfileModel {
     private String firstName;
     private String lastName;
     private String bio;
-    private byte[] picture;
+    private byte[] photo;
 
     public String getFullName() {
         return firstName + " " + lastName;

@@ -45,7 +45,7 @@ public class ProfileController {
                 .lastName(profile.getLastName())
                 .bio(profile.getBio())
                 .username(profile.getUsername())
-                .picture(profile.getPicture())
+                .photo(profile.getPhoto())
                 .build();
     }
 
@@ -61,7 +61,7 @@ public class ProfileController {
                 .lastName(profile.getLastName())
                 .bio(profile.getBio())
                 .username(profile.getUsername())
-                .picture(profile.getPicture())
+                .photo(profile.getPhoto())
                 .build();
     }
 
@@ -77,7 +77,7 @@ public class ProfileController {
                 .lastName(profile.getLastName())
                 .bio(profile.getBio())
                 .username(profile.getUsername())
-                .picture(profile.getPicture())
+                .photo(profile.getPhoto())
                 .build();
     }
 
@@ -97,8 +97,7 @@ public class ProfileController {
                         .builder()
                         .id(profile.getId())
                         .username(profile.getUsername())
-                        .picture(profile.getPicture())
-                        .chatType(ChatTypeEnum.PV)
+                        .photo(profile.getPhoto())
                         .build())
                 .collect(Collectors.toList());
         result.addAll(
