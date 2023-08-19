@@ -1,5 +1,9 @@
 package com.codestar.HAMI.service;
 
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import com.codestar.HAMI.elasticsearch.model.ProfileElasticModel;
+import com.codestar.HAMI.elasticsearch.service.ProfileElasticService;
 import com.codestar.HAMI.entity.Profile;
 import com.codestar.HAMI.entity.Subscription;
 import com.codestar.HAMI.entity.User;
@@ -8,6 +12,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -22,6 +28,9 @@ public class ProfileService {
     @Autowired
     UserAuthenticationService userAuthenticationService;
 
+    @Autowired
+    ProfileElasticService profileElasticService;
+
     public Profile createProfile(Profile profile, long userId) {
         User user = userService.getUserById(userId);
         if (user == null) {
@@ -29,19 +38,29 @@ public class ProfileService {
         }
         profile.setUser(user);
         user.setProfile(profile);
-        return profileRepository.saveAndFlush(profile);
+        profile = profileRepository.saveAndFlush(profile);
+        profileElasticService.addProfileToIndex(profile);
+        return profile;
     }
 
-    public Profile getProfileByProfileId(Long profileId) {
+    public Profile getProfileById(Long profileId) {
         return profileRepository.findById(profileId).orElse(null);
     }
 
-    public List<Profile> getProfilesByUserNamePrefix(String username) {
-        return profileRepository.findByUsernameStartsWithIgnoreCase(username);
+    public List<Profile> getProfilesByUserNamePrefix(String username) throws IOException {
+        SearchResponse<ProfileElasticModel> searchResponse =  profileElasticService.matchProfilesWithUsername(username);
+
+        List<Hit<ProfileElasticModel>> listOfHits= searchResponse.hits().hits();
+        List<Profile> listOfProducts  = new ArrayList<>();
+        for(Hit<ProfileElasticModel> hit : listOfHits){
+            Long ProfileId = hit.source().getId();
+            listOfProducts.add(this.getProfileById(ProfileId));
+        }
+        return listOfProducts;
     }
 
     public void addSubscription(Subscription subscription, long profileId) {
-        Profile profile = this.getProfileByProfileId(profileId);
+        Profile profile = this.getProfileById(profileId);
         profile.getSubscriptions().add(subscription);
         profileRepository.save(profile);
     }
