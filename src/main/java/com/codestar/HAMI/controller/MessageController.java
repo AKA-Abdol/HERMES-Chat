@@ -1,12 +1,13 @@
 package com.codestar.HAMI.controller;
 
+import com.codestar.HAMI.entity.Chat;
 import com.codestar.HAMI.entity.Message;
+import com.codestar.HAMI.entity.Profile;
 import com.codestar.HAMI.model.MessageModel;
+import com.codestar.HAMI.service.ChatService;
 import com.codestar.HAMI.service.MessageService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.codestar.HAMI.service.UserAuthenticationService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
@@ -17,7 +18,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -28,9 +32,13 @@ public class MessageController {
 
     @Autowired
     MessageService messageService;
-
     @Autowired
     Validator validator;
+    @Autowired
+    ChatService chatService;
+
+    @Autowired
+    UserAuthenticationService userAuthenticationService;
 
     @GetMapping("/{chatId}")
     public List<MessageModel> getChatMessages(@PathVariable Long chatId) {
@@ -45,27 +53,18 @@ public class MessageController {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
-    @PostMapping()
-    public MessageModel createMessage(@RequestBody Map<String, Object> messageMap) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        Message message = mapper.convertValue(messageMap, Message.class);
-        this.validateCreateMessage(messageMap, message);
-        try {
-            if (messageMap.containsKey("chatId") && messageMap.get("chatId") != null) {
-                message = messageService.createMessage(message, Long.valueOf(messageMap.get("chatId").toString()));
-            } else {
-                message = messageService.createChatAndMessage(message, Long.valueOf(messageMap.get("profileId").toString()));
-            }
-        } catch (EntityNotFoundException exception) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage());
-        }
+    @PostMapping("/{chatId}")
+    public MessageModel createMessage(
+            @PathVariable Long chatId, @RequestBody Message messageData
+    ) {
+        Profile profile = userAuthenticationService.getAuthenticatedProfile();
+        Chat chat = chatService.getChatById(chatId);
+        Message message = messageService.createMessage(messageData, profile, chat);
         return MessageModel
                 .builder()
-                .text(message.getText())
-                .file(message.getFile())
                 .createdAt(message.getCreatedAt())
+                .text(message.getText())
+                .file(null)
                 .build();
     }
 
