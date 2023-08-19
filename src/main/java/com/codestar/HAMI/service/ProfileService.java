@@ -47,7 +47,7 @@ public class ProfileService {
         return profileRepository.findById(profileId).orElse(null);
     }
 
-    public List<Profile> getProfilesByUserNamePrefix(String username) throws IOException {
+    public List<Profile> getProfilesByUserNameFuzziness(String username) throws IOException {
         SearchResponse<ProfileElasticModel> searchResponse =  profileElasticService.matchProfilesWithUsername(username);
 
         List<Hit<ProfileElasticModel>> listOfHits= searchResponse.hits().hits();

@@ -18,8 +18,6 @@ import java.util.List;
 public class ChatController {
     @Autowired
     ChatService chatService;
-    @Autowired
-    ChatRepository chatRepository;
 
     @GetMapping("/{profileId}")
     public List<ChatModel> getChats(@PathVariable Long profileId) {
