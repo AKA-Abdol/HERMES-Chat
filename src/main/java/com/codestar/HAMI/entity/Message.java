@@ -33,6 +33,7 @@ public class Message {
     private String text;
 
     @CreatedDate
+    @Hidden
     private Instant createdAt;
 
     @Column(length = 10_000_000)

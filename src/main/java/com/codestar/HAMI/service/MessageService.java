@@ -1,6 +1,7 @@
 package com.codestar.HAMI.service;
 
 import com.codestar.HAMI.entity.*;
+import com.codestar.HAMI.repository.ChatRepository;
 import com.codestar.HAMI.repository.MessageRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -25,6 +26,8 @@ public class MessageService {
     ChatService chatService;
 
     @Autowired
+    ChatRepository chatRepository;
+    @Autowired
     SubscriptionService subscriptionService;
 
     @Autowired
@@ -34,13 +37,12 @@ public class MessageService {
         return messageRepository.findByChatIdOrderByCreatedAtDesc(chatId);
     }
 
-    public Message createMessage(Message message, Long chatId) {
-        Chat chat = chatService.getChatById(chatId);
-        this.setMessageProfile(message, profileService.getLoggedInProfile());
+    public Message createMessage(
+            Message message, Profile profile, Chat chat
+    ) {
         message.setChat(chat);
-        chat.getMessages().add(message);
-        message = messageRepository.saveAndFlush(message);
-        return message;
+        message.setProfile(profile);
+        return messageRepository.save(message);
     }
 
     @Transactional
