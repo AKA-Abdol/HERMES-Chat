@@ -75,9 +75,10 @@ public class MessageController {
 
     @PutMapping("/{messageId}")
     public Message editMessage(
-            @PathVariable Long messageId, @Valid @RequestBody Message message
+            @PathVariable Long messageId, @Valid @RequestBody Message messageData
     ) {
-        return messageService.editMessage(messageId, message);
+        Profile profile = userAuthenticationService.getAuthenticatedProfile();
+        return messageService.editMessage(messageId, messageData, profile);
     }
 
     private void validateCreateMessage(Map<String, Object> messageMap, Message message) {

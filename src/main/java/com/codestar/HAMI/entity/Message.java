@@ -1,6 +1,7 @@
 package com.codestar.HAMI.entity;
 
 import com.codestar.HAMI.model.MessagePreview;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.*;
@@ -41,16 +42,19 @@ public class Message {
     private byte[] file;
 
     @Hidden
+    @JsonIgnore
     @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JoinColumn(name = "chat_id", nullable = false)
     private Chat chat;
 
     @Hidden
+    @JsonIgnore
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinColumn(name = "profile_id", nullable = false)
     private Profile profile;
 
     @Hidden
+    @JsonIgnore
     public MessagePreview getPreview() {
         return MessagePreview
                 .builder()
