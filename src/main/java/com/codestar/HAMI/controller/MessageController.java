@@ -74,10 +74,17 @@ public class MessageController {
     }
 
     @PutMapping("/{messageId}")
-    public Message editMessage(
-            @PathVariable Long messageId, @Valid @RequestBody Message message
+    public MessageModel editMessage(
+            @PathVariable Long messageId, @Valid @RequestBody Message messageData
     ) {
-        return messageService.editMessage(messageId, message);
+        Message message =  messageService.editMessage(messageId, messageData);
+        System.out.println(message.getText());
+        return MessageModel
+                .builder()
+                .text(message.getText())
+                .file(message.getFile())
+                .createdAt(message.getCreatedAt())
+                .build();
     }
 
     private void validateCreateMessage(Map<String, Object> messageMap, Message message) {

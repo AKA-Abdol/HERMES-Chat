@@ -116,6 +116,7 @@ public class MessageService {
         System.out.println("after validation");
         mainMessage.setText(message.getText());
         mainMessage.setFile(message.getFile());
+        System.out.println("after setting!");
         return messageRepository.save(mainMessage);
     }
 
