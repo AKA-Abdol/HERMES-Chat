@@ -7,6 +7,8 @@ import jakarta.persistence.Enumerated;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 @Document(indexName = "profile")
 @Getter @Setter
@@ -18,8 +20,7 @@ public class ProfileElasticModel {
 
     @Id
     private Long id;
+
+    @Field(type = FieldType.Text, name = "username")
     private String username;
-    @Enumerated(EnumType.STRING)
-    private ChatTypeEnum chatType;
-    private byte[] photo;
 }

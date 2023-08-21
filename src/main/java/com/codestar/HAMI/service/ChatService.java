@@ -1,10 +1,6 @@
 package com.codestar.HAMI.service;
 
 import com.codestar.HAMI.entity.*;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.elasticsearch.core.search.Hit;
-import com.codestar.HAMI.elasticsearch.model.ChatElasticModel;
-import com.codestar.HAMI.elasticsearch.service.ChatElasticService;
 import com.codestar.HAMI.entity.Chat;
 import com.codestar.HAMI.entity.Profile;
 import com.codestar.HAMI.entity.Subscription;
@@ -71,7 +67,7 @@ public class ChatService {
             updateChat.setDescription(chat.getDescription());
 
             chatRepository.save(updateChat);
-            chatElasticService.addChatToIndex(updateChat);
+//            chatElasticService.addChatToIndex(updateChat); Ignore elastic
         }
 
         return updateChat;
@@ -79,7 +75,7 @@ public class ChatService {
 
     public Chat createChat(Chat chat) {
         chat = chatRepository.saveAndFlush(chat);
-        chatElasticService.addChatToIndex(chat);
+//        chatElasticService.addChatToIndex(chat); Ignore elastic
         return chat;
     }
 
@@ -110,14 +106,17 @@ public class ChatService {
     }
 
     public List<Chat> getChatsByUserNameFuzziness(String username) throws IOException {
-        SearchResponse<ChatElasticModel> searchResponse =  chatElasticService.matchChatsWithUsername(username);
+//        Ignore elastic
+//        List<ChatElasticModel> searchResponse =  chatElasticService.matchChatsWithUsername(username);
+//        List<Chat> chats  = new ArrayList<>();
+//        for(ChatElasticModel chatElasticModel : searchResponse){
+//            Long chatId = chatElasticModel.getId();
+//            chats.add(this.getChatById(chatId));
+//        }
+        return getChatsByUserNamePrefix(username);
+    }
 
-        List<Hit<ChatElasticModel>> listOfHits= searchResponse.hits().hits();
-        List<Chat> chats  = new ArrayList<>();
-        for(Hit<ChatElasticModel> hit : listOfHits){
-            Long chatId = hit.source().getId();
-            chats.add(this.getChatById(chatId));
-        }
-        return chats;
+    public List<Chat> getChatsByUserNamePrefix(String username){
+        return chatRepository.findByNameStartsWithIgnoreCase(username);
     }
 }
