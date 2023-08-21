@@ -1,9 +1,6 @@
 package com.codestar.HAMI.service;
 
-import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.codestar.HAMI.elasticsearch.model.ProfileElasticModel;
-import com.codestar.HAMI.elasticsearch.service.ProfileElasticService;
 import com.codestar.HAMI.entity.Profile;
 import com.codestar.HAMI.entity.Subscription;
 import com.codestar.HAMI.entity.User;
@@ -30,9 +27,6 @@ public class ProfileService {
     @Autowired
     UserAuthenticationService userAuthenticationService;
 
-    @Autowired
-    ProfileElasticService profileElasticService;
-
     public Profile createProfile(Profile profile, long userId) {
         User user = userService.getUserById(userId);
         if (user == null) {
@@ -41,7 +35,7 @@ public class ProfileService {
         profile.setUser(user);
         user.setProfile(profile);
         profile = profileRepository.saveAndFlush(profile);
-        profileElasticService.addProfileToIndex(profile);
+//        profileElasticService.addProfileToIndex(profile); Ignore elastic
         return profile;
     }
 
@@ -50,15 +44,19 @@ public class ProfileService {
     }
 
     public List<Profile> getProfilesByUserNameFuzziness(String username) throws IOException {
-        SearchResponse<ProfileElasticModel> searchResponse =  profileElasticService.matchProfilesWithUsername(username);
+//        Ignore elastic
+//        List<ProfileElasticModel> searchResponse =  profileElasticService.matchProfilesWithUsername(username);
+//        List<Profile> listOfProducts  = new ArrayList<>();
+//        for(ProfileElasticModel profileElasticModel : searchResponse){
+//            Long ProfileId = profileElasticModel.getId();
+//            listOfProducts.add(this.getProfileById(ProfileId));
+//        }
 
-        List<Hit<ProfileElasticModel>> listOfHits= searchResponse.hits().hits();
-        List<Profile> listOfProducts  = new ArrayList<>();
-        for(Hit<ProfileElasticModel> hit : listOfHits){
-            Long ProfileId = hit.source().getId();
-            listOfProducts.add(this.getProfileById(ProfileId));
-        }
-        return listOfProducts;
+        return getProfilesByUserNamePrefix(username);
+    }
+
+    public List<Profile> getProfilesByUserNamePrefix(String username) {
+        return profileRepository.findByUsernameStartsWithIgnoreCase(username);
     }
 
     public void addSubscription(Subscription subscription, long profileId) {

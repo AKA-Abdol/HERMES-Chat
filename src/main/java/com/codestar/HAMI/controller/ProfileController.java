@@ -1,6 +1,6 @@
 package com.codestar.HAMI.controller;
 
-import com.codestar.HAMI.elasticsearch.model.ProfileElasticModel;
+import com.codestar.HAMI.elasticsearch.model.ChatElasticModel;
 import com.codestar.HAMI.entity.Chat;
 import com.codestar.HAMI.entity.ChatTypeEnum;
 import com.codestar.HAMI.entity.Profile;
@@ -81,10 +81,10 @@ public class ProfileController {
     }
 
     @GetMapping("/search")
-    public List<ProfileElasticModel> getSearchedProfileAndChats(@RequestParam(required = true) String username){
+    public List<ChatElasticModel> getSearchedProfileAndChats(@RequestParam(required = true) String username){
         List<Profile> profiles = null;
         List<Chat> chats = null;
-        List<ProfileElasticModel> result = null;
+        List<ChatElasticModel> result = null;
         try {
             profiles = profileService.getProfilesByUserNameFuzziness(username);
             chats = chatService.getChatsByUserNameFuzziness(username);
@@ -92,23 +92,23 @@ public class ProfileController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something were wrong");
         }
          result = profiles.stream()
-                .map(profile -> ProfileElasticModel
+                .map(profile -> ChatElasticModel
                         .builder()
                         .id(profile.getId())
                         .username(profile.getUsername())
-                        .chatType(ChatTypeEnum.PV)
+                        .chatType(ChatTypeEnum.PV.toString())
                         .photo(profile.getPhoto())
                         .build())
                 .collect(Collectors.toList());
         result.addAll(
                 chats.stream()
                         .filter(chat -> !chat.getChatType().equals(ChatTypeEnum.PV))
-                        .map(chat -> ProfileElasticModel
+                        .map(chat -> ChatElasticModel
                                 .builder()
                                 .id(chat.getId())
                                 .username(chat.getName())
                                 .photo(chat.getPhoto())
-                                .chatType(chat.getChatType())
+                                .chatType(chat.getChatType().toString())
                                 .build()
                         )
                         .toList()
