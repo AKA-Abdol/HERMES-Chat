@@ -25,9 +25,6 @@ public class ChatService {
     @Autowired
     SubscriptionService subscriptionService;
 
-    @Autowired
-    ChatElasticService chatElasticService;
-
 
     public List<Chat> getAllChats(Long profileId) {
         Profile profile = profileService.getProfileById(profileId);
