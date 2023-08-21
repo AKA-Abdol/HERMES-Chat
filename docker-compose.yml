@@ -41,14 +41,14 @@ services:
             -   8080:8080
 
 
-#    dbadmin:
-#        image: dpage/pgadmin4
-#        restart: always
-#        environment:
-#            PGADMIN_DEFAULT_EMAIL: admin@admin.com
-#            PGADMIN_DEFAULT_PASSWORD: 123123
-#        ports:
-#            - "5050:80"
+    dbadmin:
+        image: dpage/pgadmin4
+        restart: always
+        environment:
+            PGADMIN_DEFAULT_EMAIL: admin@admin.com
+            PGADMIN_DEFAULT_PASSWORD: 123123
+        ports:
+            - "5050:80"
 
 volumes:
     pgdata:
