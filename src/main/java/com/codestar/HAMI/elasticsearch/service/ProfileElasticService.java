@@ -1,47 +1,69 @@
 package com.codestar.HAMI.elasticsearch.service;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
 import com.codestar.HAMI.elasticsearch.model.ProfileElasticModel;
 import com.codestar.HAMI.elasticsearch.repository.ProfileElasticRepository;
-import com.codestar.HAMI.elasticsearch.util.ElasticSearchUtil;
 import com.codestar.HAMI.entity.Profile;
+import org.elasticsearch.common.unit.Fuzziness;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
+import org.springframework.data.elasticsearch.core.query.IndexQuery;
+import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.function.Supplier;
+import java.util.List;
+import java.util.stream.Collectors;
 
-@Service
+//@Service
 public class ProfileElasticService {
 
-    @Autowired
-    ProfileElasticRepository profileElasticRepository;
+    private final String INDEX_NAME = "profile";
 
-    @Autowired
-    ElasticsearchClient  elasticsearchClient;
+//    @Autowired @Qualifier("profileElastic")
+//    ProfileElasticRepository profileElasticRepository;
+//
+//    @Autowired
+//    ElasticsearchOperations elasticsearchOperations;
 
-    public void addProfileToIndex(Profile profile){
-        ProfileElasticModel profileElasticModel = ProfileElasticModel
-                .builder()
-                .id(profile.getId())
-                .username(profile.getUsername())
-                .build();
-        profileElasticRepository.save(profileElasticModel);
-    }
-
-    public void removeProfileFromIndex(Profile profile){
-        ProfileElasticModel profileElasticModel = ProfileElasticModel
-                .builder()
-                .id(profile.getId())
-                .build();
-        profileElasticRepository.delete(profileElasticModel);
-    }
-
-    public SearchResponse<ProfileElasticModel> matchProfilesWithUsername(String fieldValue) throws IOException {
-        Supplier<Query> supplier  = ElasticSearchUtil.supplierWithNameField(fieldValue);
-        SearchResponse<ProfileElasticModel> searchResponse = elasticsearchClient.search(s->s.index("profile").query(supplier.get()),ProfileElasticModel.class);
-        return searchResponse;
-    }
+//    public void addProfileToIndex(Profile profile){
+//        ProfileElasticModel profileElasticModel = ProfileElasticModel
+//                .builder()
+//                .id(profile.getId())
+//                .username(profile.getUsername())
+//                .build();
+//        IndexQuery query = new IndexQueryBuilder()
+//                .withId(profileElasticModel.getId().toString())
+//                .withObject(profileElasticModel)
+//                .build();
+//        elasticsearchOperations.index(query, IndexCoordinates.of(INDEX_NAME));
+//    }
+//
+//    public void removeProfileFromIndex(Profile profile){
+//        profileElasticRepository.deleteById(profile.getId());
+//    }
+//
+//    public List<ProfileElasticModel> matchProfilesWithUsername(String fieldValue) throws IOException {
+//        QueryBuilder query = QueryBuilders
+//                .matchQuery("username", fieldValue)
+//                .fuzziness(Fuzziness.AUTO);
+//
+//        Query searchQuery = new NativeSearchQueryBuilder()
+//                .withQuery(query)
+//                .build();
+//
+//        SearchHits<ProfileElasticModel> searchHits =
+//                elasticsearchOperations.search(searchQuery, ProfileElasticModel.class, IndexCoordinates.of(INDEX_NAME));
+//
+//        return searchHits.stream()
+//                .map(SearchHit::getContent)
+//                .collect(Collectors.toList());
+//    }
 }
