@@ -1,6 +1,7 @@
 package com.codestar.HAMI.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -51,8 +52,7 @@ public class Profile {
     private Set<Subscription> subscriptions = new HashSet<>();
 
     @Hidden
-    @JsonIgnore
-    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "profile")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "profile")
     private Set<Message> messages = new HashSet<>();
 
     public void removeMessage(Message message) {

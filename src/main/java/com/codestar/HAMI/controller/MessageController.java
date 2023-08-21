@@ -74,12 +74,10 @@ public class MessageController {
     }
 
     @PutMapping("/{messageId}")
-    public void editMessage(@PathVariable Long messageId, @Valid @RequestBody Message message) {
-        try {
-            messageService.editMessage(messageId, message);
-        } catch (EntityNotFoundException exception) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage());
-        }
+    public Message editMessage(
+            @PathVariable Long messageId, @Valid @RequestBody Message message
+    ) {
+        return messageService.editMessage(messageId, message);
     }
 
     private void validateCreateMessage(Map<String, Object> messageMap, Message message) {

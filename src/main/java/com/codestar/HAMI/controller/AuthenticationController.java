@@ -43,7 +43,7 @@ public class AuthenticationController {
             @RequestBody User userData
     ) {
         User user = userService.getUserByEmail(userData.getEmail());
-        String token = authenticationService.login(user);
+        String token = authenticationService.login(user, userData.getPassword());
         return ResponseEntity.ok(
                 AuthenticationResponse
                         .builder()

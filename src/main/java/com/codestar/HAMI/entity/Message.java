@@ -41,12 +41,12 @@ public class Message {
     private byte[] file;
 
     @Hidden
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JoinColumn(name = "chat_id", nullable = false)
     private Chat chat;
 
     @Hidden
-    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinColumn(name = "profile_id", nullable = false)
     private Profile profile;
 

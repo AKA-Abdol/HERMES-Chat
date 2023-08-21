@@ -1,7 +1,6 @@
 package com.codestar.HAMI.controller;
 
 import com.codestar.HAMI.elasticsearch.model.ChatElasticModel;
-import com.codestar.HAMI.elasticsearch.model.ProfileElasticModel;
 import com.codestar.HAMI.entity.Chat;
 import com.codestar.HAMI.entity.ChatTypeEnum;
 import com.codestar.HAMI.entity.Profile;
@@ -50,9 +49,9 @@ public class ProfileController {
     }
 
     @GetMapping("/{profileId}")
-    public ProfileModel getProfileById(@PathVariable Long profileId){
+    public ProfileModel getProfileById(@PathVariable Long profileId) {
         Profile profile = profileService.getProfileById(profileId);
-        if (profile == null){
+        if (profile == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No profile found");
         }
         return ProfileModel
@@ -82,7 +81,7 @@ public class ProfileController {
     }
 
     @GetMapping("/search")
-    public List<ChatElasticModel> getSearchedProfileAndChats(@RequestParam(required = true) String username){
+    public List<ChatElasticModel> getSearchedProfileAndChats(@RequestParam(required = true) String username) {
         List<Profile> profiles = null;
         List<Chat> chats = null;
         List<ChatElasticModel> result = null;
@@ -92,7 +91,7 @@ public class ProfileController {
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something were wrong");
         }
-         result = profiles.stream()
+        result = profiles.stream()
                 .map(profile -> ChatElasticModel
                         .builder()
                         .id(profile.getId())
@@ -124,10 +123,11 @@ public class ProfileController {
         }
     }
 
-    @PutMapping("/{profileId}")
+    @PutMapping("")
     public Profile updateProfile(
-            @RequestBody Profile profileData, @PathVariable Long profileId
+            @RequestBody Profile profileData
     ) {
-        return profileService.updateProfile(profileData, profileId);
+        Profile profile = userAuthenticationService.getAuthenticatedProfile();
+        return profileService.updateProfile(profileData, profile);
     }
 }

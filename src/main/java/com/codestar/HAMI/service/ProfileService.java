@@ -1,18 +1,14 @@
 package com.codestar.HAMI.service;
 
-import com.codestar.HAMI.elasticsearch.model.ProfileElasticModel;
 import com.codestar.HAMI.entity.Profile;
 import com.codestar.HAMI.entity.Subscription;
 import com.codestar.HAMI.entity.User;
 import com.codestar.HAMI.repository.ProfileRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -77,10 +73,7 @@ public class ProfileService {
         return profileRepository.findByUsernameIgnoreCase(username) != null;
     }
 
-    public Profile updateProfile(Profile profileData, Long profileId) {
-        Profile profile = profileRepository
-                .findById(profileId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile Not Found!"));
+    public Profile updateProfile(Profile profileData, Profile profile) {
         profile.setProfile(profileData);
         return profileRepository.save(profile);
     }
