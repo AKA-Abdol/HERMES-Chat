@@ -15,7 +15,7 @@ public class ExceptionHandlerService extends ResponseEntityExceptionHandler {
             = { DataIntegrityViolationException.class})
     protected ResponseEntity<Object> handleConflict(
             RuntimeException ex, WebRequest request) {
-        String bodyOfResponse = "Duplicate data";
+        ResponseEntity<String> bodyOfResponse = new ResponseEntity<>("Duplicate Data", HttpStatus.CONFLICT);
         return handleExceptionInternal(ex, bodyOfResponse,
                 new HttpHeaders(), HttpStatus.CONFLICT, request);
     }
