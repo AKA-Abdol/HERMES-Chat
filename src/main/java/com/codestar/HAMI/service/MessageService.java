@@ -30,8 +30,6 @@ public class MessageService {
     @Autowired
     SubscriptionService subscriptionService;
 
-    @Autowired
-    UserAuthenticationService userAuthenticationService;
 
     public List<Message> getChatMessagesByChatId(Long chatId) {
         return messageRepository.findByChatIdOrderByCreatedAtDesc(chatId);
@@ -106,18 +104,17 @@ public class MessageService {
         return messageRepository.findById(messageId).orElse(null);
     }
 
-    public Message editMessage(Long messageId, Message message){
-        Message mainMessage = this.getMessageById(messageId);
-        System.out.println("Out of getting message!*"+mainMessage+"*");
-        if (mainMessage == null) {
+    public Message editMessage(Long messageId, Message messageData, Profile profile) {
+        Message message = getMessageById(messageId);
+
+        if (message == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Message Not Found");
-        }
-        this.validateUserCanEditMessage(mainMessage);
-        System.out.println("after validation");
-        mainMessage.setText(message.getText());
-        mainMessage.setFile(message.getFile());
-        System.out.println("after setting!");
-        return messageRepository.save(mainMessage);
+        if (!canEditMessage(message, profile))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User Can't Edit The Message");
+
+        message.setText(messageData.getText());
+        message.setFile(messageData.getFile());
+        return messageRepository.save(message);
     }
 
     private void validateUserCanDeleteMessage(Message message) {
@@ -129,12 +126,8 @@ public class MessageService {
         //TODO set user access level based on user role in group and channels
     }
 
-    private void validateUserCanEditMessage(Message message) {
-        Profile profile = userAuthenticationService.getAuthenticatedProfile();
-        if (message.getChat().getChatType().equals(ChatTypeEnum.PV)
-                && (!Objects.equals(profile.getId(), message.getProfile().getId()))) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Editing message refused");
-        }
+    private boolean canEditMessage(Message message, Profile profile) {
+        return message.getProfile().getId().equals(profile.getId());
         //TODO set user access level based on user role in group and channels
     }
 }

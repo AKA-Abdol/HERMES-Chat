@@ -54,6 +54,7 @@ public class Message {
     private Profile profile;
 
     @Hidden
+    @JsonIgnore
     public MessagePreview getPreview() {
         return MessagePreview
                 .builder()
