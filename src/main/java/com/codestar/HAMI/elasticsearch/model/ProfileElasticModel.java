@@ -1,6 +1,9 @@
 package com.codestar.HAMI.elasticsearch.model;
 
+import com.codestar.HAMI.entity.ChatTypeEnum;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;

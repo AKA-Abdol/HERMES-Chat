@@ -1,6 +1,7 @@
 package com.codestar.HAMI.controller;
 
 import com.codestar.HAMI.elasticsearch.model.ChatElasticModel;
+import com.codestar.HAMI.elasticsearch.model.ProfileElasticModel;
 import com.codestar.HAMI.entity.Chat;
 import com.codestar.HAMI.entity.ChatTypeEnum;
 import com.codestar.HAMI.entity.Profile;
