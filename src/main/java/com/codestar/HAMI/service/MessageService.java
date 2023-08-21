@@ -96,29 +96,27 @@ public class MessageService {
 
     public void deleteMessage(Long messageId) {
         Message message = this.getMessageById(messageId);
+        if (message == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Message Not Found.");
         this.validateUserCanDeleteMessage(message);
-        this.deleteMessageFromChat(message);
-        messageRepository.flush();
-    }
-
-    private void deleteMessageFromChat(Message message) {
-        Chat chat = message.getChat();
-        chat.removeMessage(message);
+        messageRepository.delete(message);
     }
 
     public Message getMessageById(Long messageId) {
         return messageRepository.findById(messageId).orElse(null);
     }
 
-    public void editMessage(Long messageId, Message message) throws EntityNotFoundException {
+    public Message editMessage(Long messageId, Message message){
         Message mainMessage = this.getMessageById(messageId);
+        System.out.println("Out of getting message!*"+mainMessage+"*");
         if (mainMessage == null) {
-            throw new EntityNotFoundException("No message found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Message Not Found");
         }
         this.validateUserCanEditMessage(mainMessage);
+        System.out.println("after validation");
         mainMessage.setText(message.getText());
         mainMessage.setFile(message.getFile());
-        messageRepository.save(mainMessage);
+        return messageRepository.save(mainMessage);
     }
 
     private void validateUserCanDeleteMessage(Message message) {
@@ -131,7 +129,7 @@ public class MessageService {
     }
 
     private void validateUserCanEditMessage(Message message) {
-        Profile profile = profileService.getLoggedInProfile();
+        Profile profile = userAuthenticationService.getAuthenticatedProfile();
         if (message.getChat().getChatType().equals(ChatTypeEnum.PV)
                 && (!Objects.equals(profile.getId(), message.getProfile().getId()))) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Editing message refused");

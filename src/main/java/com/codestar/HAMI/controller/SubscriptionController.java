@@ -73,6 +73,7 @@ public class SubscriptionController {
                                 .name(chat.getName(profile))
                                 .chatType(chat.getChatType())
                                 .lastMessage(chat.getLastMessagePreview())
+                                .chatId(chat.getId())
                                 .build()
                 )
                 .toList();

@@ -1,6 +1,8 @@
 package com.codestar.HAMI.entity;
 
 import com.codestar.HAMI.model.MessagePreview;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -48,7 +50,7 @@ public class Chat {
     @Hidden
     private Set<Subscription> subscriptions = new HashSet<>();
 
-    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "chat", cascade = CascadeType.ALL)
     @Hidden
     private Set<Message> messages = new HashSet<>();
 
@@ -76,7 +78,7 @@ public class Chat {
                 .stream()
                 .sorted(Comparator.comparing(Message::getCreatedAt))
                 .toList()
-                .get(0)
+                .get(messages.size() - 1)
                 .getPreview();
     }
 }
