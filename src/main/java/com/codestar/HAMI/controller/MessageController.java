@@ -64,6 +64,7 @@ public class MessageController {
                                         .text(message.getText())
                                         .createdAt(message.getCreatedAt())
                                         .id(message.getId())
+                                        .viewCount(message.getViewCount())
                                         .forwarded(false);
 
                                     if (message.getSubscription() != null) {
@@ -94,6 +95,7 @@ public class MessageController {
                 .builder()
                 .createdAt(message.getCreatedAt())
                 .text(message.getText())
+                .viewCount(message.getViewCount())
                 .file(null)
                 .build();
     }
@@ -151,4 +153,17 @@ public class MessageController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
         }
     }
+
+    @PutMapping("view_message/{messageId}")
+    public Long viewMessage(@PathVariable long messageId) {
+        Message message = messageService.getMessageById(messageId);
+        if(message == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "message doesn't exist.");
+
+        if(message.getViewCount() == 0)
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "this message a channel message.");
+
+        return messageService.updateMessageView(messageId);
+    }
+
 }

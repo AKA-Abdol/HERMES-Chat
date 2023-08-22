@@ -53,6 +53,10 @@ public class Message {
     @JoinColumn(name = "profile_id", nullable = false)
     private Profile profile;
 
+    @Column
+    @Hidden
+    private Long viewCount;
+
     @Hidden
     @JsonIgnore
     @ManyToOne
