@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -53,6 +54,14 @@ public class Chat {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "chat", cascade = CascadeType.ALL)
     @Hidden
     private Set<Message> messages = new HashSet<>();
+
+    @Hidden
+    @JsonIgnore
+    private Long creatorProfileId;
+
+    @Hidden
+    @JsonIgnore
+    private Long pinnedMessageId;
 
     public void removeMessage(Message message) {
         messages.remove(message);
