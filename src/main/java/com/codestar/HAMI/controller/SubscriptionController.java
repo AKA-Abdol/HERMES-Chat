@@ -1,15 +1,16 @@
 package com.codestar.HAMI.controller;
 
 import com.codestar.HAMI.entity.Chat;
+import com.codestar.HAMI.entity.Message;
 import com.codestar.HAMI.entity.Profile;
+import com.codestar.HAMI.entity.Subscription;
 import com.codestar.HAMI.model.ProfilesSubscriptionRequest;
 import com.codestar.HAMI.model.SubscriptionResponse;
-import com.codestar.HAMI.service.ChatService;
-import com.codestar.HAMI.service.ProfileService;
-import com.codestar.HAMI.service.SubscriptionService;
-import com.codestar.HAMI.service.UserAuthenticationService;
+import com.codestar.HAMI.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,9 @@ public class SubscriptionController {
 
     @Autowired
     private UserAuthenticationService userAuthenticationService;
+
+    @Autowired
+    private MessageService messageService;
 
     @PostMapping("/{chatId}")
     public void subscribeChat(@PathVariable Long chatId) {
@@ -78,5 +82,26 @@ public class SubscriptionController {
                 )
                 .toList();
     }
+
+    @GetMapping("/unread-message/{chatId}")
+    public Long getCountOfUnreadMessage(@PathVariable Long chatId) {
+        Profile profile = userAuthenticationService.getAuthenticatedProfile();
+        Chat chat = chatService.getChatById(chatId);
+        if(!subscriptionService.hasSubscription(chat, profile))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This subscription doesn't exist.");
+        Subscription subscription = subscriptionService.getSubscription(chat, profile);
+
+        return messageService.countOfUnreadMessage(chat, profile, subscription.getLastSeenMessageId());
+    }
+
+    @PutMapping("/last-seen-message/{messageId}")
+    public Long changeLastSeenMessage(@PathVariable Long messageId) {
+        Profile profile = userAuthenticationService.getAuthenticatedProfile();
+        Message message = messageService.getMessageById(messageId);
+        Chat chat = chatService.getChatById(message.getChat().getId());
+
+        return subscriptionService.updateLastSeenMessage(chat, profile, messageId);
+    }
+
 
 }

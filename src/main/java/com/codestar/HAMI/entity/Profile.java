@@ -61,6 +61,11 @@ public class Profile {
     }
 
     @Hidden
+    @JsonIgnore
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+    @Hidden
     public void setProfile(Profile profileData) {
         username = profileData.getUsername();
         firstName = profileData.getFirstName();
