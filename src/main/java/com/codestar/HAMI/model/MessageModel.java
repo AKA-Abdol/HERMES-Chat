@@ -10,6 +10,7 @@ import java.time.Instant;
 @Data
 @Builder
 public class MessageModel {
+    private Long id;
     private String text;
     private Instant createdAt;
     private byte[] file;
