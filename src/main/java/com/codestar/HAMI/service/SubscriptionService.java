@@ -28,7 +28,7 @@ public class SubscriptionService {
         return subscriptionRepository.saveAndFlush(subscription);
     }
 
-    private boolean hasSubscription(Chat chat, Profile profile) {
+    public boolean hasSubscription(Chat chat, Profile profile) {
         List<Subscription> subscriptions = subscriptionRepository
                 .findByProfile_Id(profile.getId());
         long subCount = subscriptions.stream()
@@ -39,7 +39,7 @@ public class SubscriptionService {
         return subCount > 0;
     }
 
-    private Subscription getSubscription(Chat chat, Profile profile) {
+    public Subscription getSubscription(Chat chat, Profile profile) {
         List<Subscription> subscriptions = subscriptionRepository
                 .findByProfile_Id(profile.getId());
         return subscriptions.stream()

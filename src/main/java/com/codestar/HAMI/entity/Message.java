@@ -55,6 +55,12 @@ public class Message {
 
     @Hidden
     @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "subscription_id")
+    private Subscription subscription;
+
+    @Hidden
+    @JsonIgnore
     public MessagePreview getPreview() {
         return MessagePreview
                 .builder()
