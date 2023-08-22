@@ -3,11 +3,11 @@ package com.codestar.HAMI.controller;
 import com.codestar.HAMI.entity.Chat;
 import com.codestar.HAMI.entity.Message;
 import com.codestar.HAMI.entity.Profile;
+import com.codestar.HAMI.model.ChatMessagesModel;
 import com.codestar.HAMI.model.MessageModel;
 import com.codestar.HAMI.service.ChatService;
 import com.codestar.HAMI.service.MessageService;
 import com.codestar.HAMI.service.UserAuthenticationService;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
@@ -41,16 +41,28 @@ public class MessageController {
     UserAuthenticationService userAuthenticationService;
 
     @GetMapping("/{chatId}")
-    public List<MessageModel> getChatMessages(@PathVariable Long chatId) {
-        List<Message> messages = messageService.getChatMessagesByChatId(chatId);
-        return messages.stream()
-                .map(message -> MessageModel
-                        .builder()
-                        .file(message.getFile())
-                        .text(message.getText())
-                        .createdAt(message.getCreatedAt())
-                        .build())
-                .collect(Collectors.toList());
+    public ChatMessagesModel getChatMessages(@PathVariable Long chatId) {
+        Chat chat = chatService.getChatById(chatId);
+        List<Message> messages = messageService.getChatMessages(chat);
+        Message pinnedMessage = messageService.getMessageById(chat.getPinnedMessageId());
+
+        ChatMessagesModel response = ChatMessagesModel
+                .builder()
+                .messages(
+                        messages.stream()
+                                .map(message -> MessageModel
+                                        .builder()
+                                        .file(message.getFile())
+                                        .text(message.getText())
+                                        .createdAt(message.getCreatedAt())
+                                        .id(message.getId())
+                                        .build()
+                                )
+                                .collect(Collectors.toList())
+                )
+                .build();
+        response.setPinned(pinnedMessage);
+        return response;
     }
 
     @PostMapping("/{chatId}")

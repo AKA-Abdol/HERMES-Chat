@@ -2,15 +2,13 @@ package com.codestar.HAMI.controller;
 
 import com.codestar.HAMI.entity.Chat;
 import com.codestar.HAMI.entity.ChatTypeEnum;
+import com.codestar.HAMI.entity.Message;
 import com.codestar.HAMI.entity.Profile;
 import com.codestar.HAMI.model.ChatModel;
 import com.codestar.HAMI.model.CreateChannelRequest;
 import com.codestar.HAMI.model.CreateGroupRequest;
 import com.codestar.HAMI.repository.ChatRepository;
-import com.codestar.HAMI.service.ChatService;
-import com.codestar.HAMI.service.ProfileService;
-import com.codestar.HAMI.service.SubscriptionService;
-import com.codestar.HAMI.service.UserAuthenticationService;
+import com.codestar.HAMI.service.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,6 +31,8 @@ public class ChatController {
     SubscriptionService subscriptionService;
     @Autowired
     ProfileService profileService;
+    @Autowired
+    MessageService messageService;
 
     @GetMapping("")
     public List<ChatModel> getChats() {
@@ -91,7 +91,10 @@ public class ChatController {
     @PostMapping("/channel")
     public ChatModel createChannel(@Valid @RequestBody CreateChannelRequest request) {
         Profile profile = userAuthenticationService.getAuthenticatedProfile();
-        Chat chat = chatService.createChatForChannel(request.getName(), request.getPhoto(), request.getDescription());
+        Chat chat = chatService.createChatForChannel(
+                request.getName(), request.getPhoto(),
+                request.getDescription(), profile.getId()
+        );
 
         ArrayList<Profile> profiles = new ArrayList<>(
                 request
@@ -111,10 +114,12 @@ public class ChatController {
                 .build();
     }
 
-    @PostMapping("/Group")
+    @PostMapping("/group")
     public ChatModel createGroup(@Valid @RequestBody CreateGroupRequest request) {
         Profile profile = userAuthenticationService.getAuthenticatedProfile();
-        Chat chat = chatService.createChatForGroup(request.getName(), request.getPhoto());
+        Chat chat = chatService.createChatForGroup(
+                request.getName(), request.getPhoto(), profile.getId()
+        );
 
         ArrayList<Profile> profiles = new ArrayList<>(
                 request
@@ -134,7 +139,7 @@ public class ChatController {
                 .build();
     }
 
-    @PostMapping("/PV/{profileId}")
+    @PostMapping("/pv/{profileId}")
     public ChatModel createPv(@Valid @PathVariable Long profileId) {
         Profile profile = userAuthenticationService.getAuthenticatedProfile();
         Chat chat = chatService.createChatForPv(profileId);
@@ -149,6 +154,22 @@ public class ChatController {
                 .description(chat.getDescription())
                 .photo(chat.getPhoto())
                 .build();
+    }
+    @PostMapping("/{chatId}/pin/{messageId}")
+    public void pinMessage(
+            @Valid @PathVariable Long chatId,
+            @Valid @PathVariable Long messageId
+    ) {
+        Profile profile = userAuthenticationService.getAuthenticatedProfile();
+        Chat chat = chatService.getChatById(chatId);
+        chatService.pinMessage(profile, chat, messageId);
+    }
+
+    @DeleteMapping("/{chatId}/unpin")
+    public void unpinMessage(@Valid @PathVariable Long chatId) {
+        Profile profile = userAuthenticationService.getAuthenticatedProfile();
+        Chat chat = chatService.getChatById(chatId);
+        chatService.unpinMessage(profile, chat);
     }
 
 }
