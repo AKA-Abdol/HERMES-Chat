@@ -27,4 +27,6 @@ public class ChatElasticModel {
     private String chatType;
 
     private byte[] photo;
+
+    private String fullName;
 }
