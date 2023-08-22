@@ -1,8 +1,12 @@
 package com.codestar.HAMI.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "subscriptions")
@@ -23,4 +27,20 @@ public class Subscription {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id", nullable = false)
     private Profile profile;
+
+    @Hidden
+    @JsonIgnore
+    @OneToMany(mappedBy = "subscription")
+    private Set<Message> messages = new HashSet<>();
+
+    @JsonIgnore
+    @Hidden
+    public String getFullName() {
+        return profile.getFirstName() + " " + profile.getLastName();
+    }
+
+    @PreRemove
+    public void deleteAuthor(){
+        this.messages.forEach(message -> message.setSubscription(null));
+    }
 }

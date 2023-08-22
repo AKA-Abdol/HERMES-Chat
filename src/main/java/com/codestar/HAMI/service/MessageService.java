@@ -24,9 +24,6 @@ public class MessageService {
 
     @Autowired
     ChatService chatService;
-
-    @Autowired
-    ChatRepository chatRepository;
     @Autowired
     SubscriptionService subscriptionService;
 
@@ -134,5 +131,18 @@ public class MessageService {
     private boolean canEditMessage(Message message, Profile profile) {
         return message.getProfile().getId().equals(profile.getId());
         //TODO set user access level based on user role in group and channels
+    }
+
+    public Message saveForwardMessage(Message message, Subscription subscription, Profile senderProfile, Chat senderChat) {
+        Message forwardMessage = createForwardMessage(message);
+        forwardMessage.setSubscription(subscription);
+        return createMessage(forwardMessage, senderProfile, senderChat);
+    }
+
+    private Message createForwardMessage(Message message){
+        Message forwardMessage = new Message();
+        forwardMessage.setText(message.getText());
+        forwardMessage.setFile(message.getFile());
+        return forwardMessage;
     }
 }
