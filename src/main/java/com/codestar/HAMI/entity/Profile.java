@@ -72,4 +72,10 @@ public class Profile {
         lastName = profileData.getLastName();
         bio = profileData.getBio();
     }
+
+    @Hidden
+    @JsonIgnore
+    public String getFullName(Profile profileData) {
+        return profileData.getFirstName() + " " + profileData.getLastName();
+    }
 }
