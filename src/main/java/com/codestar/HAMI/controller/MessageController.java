@@ -48,6 +48,7 @@ public class MessageController {
 
     @GetMapping("/{chatId}")
     public ChatMessagesModel getChatMessages(@PathVariable Long chatId) {
+        Long profileId = userAuthenticationService.getAuthenticatedProfile().getId();
         Chat chat = chatService.getChatById(chatId);
         List<Message> messages = messageService.getChatMessages(chat);
 
@@ -63,6 +64,7 @@ public class MessageController {
                                                                     .file(message.getFile())
                                                                     .text(message.getText())
                                                                     .createdAt(message.getCreatedAt())
+                                                                    .isSelf(profileId.equals(message.getProfile().getId()))
                                                                     .id(message.getId())
                                                                     .viewCount(message.getViewCount())
                                                                     .fullName(message.getProfile().getFullName())
