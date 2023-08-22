@@ -83,7 +83,7 @@ public class SubscriptionController {
                 .toList();
     }
 
-    @GetMapping("/unread_message/{chatId}")
+    @GetMapping("/unread-message/{chatId}")
     public Long getCountOfUnreadMessage(@PathVariable Long chatId) {
         Profile profile = userAuthenticationService.getAuthenticatedProfile();
         Chat chat = chatService.getChatById(chatId);
@@ -91,11 +91,10 @@ public class SubscriptionController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This subscription doesn't exist.");
         Subscription subscription = subscriptionService.getSubscription(chat, profile);
 
-        Long count = messageService.countOfUnreadMessage(chat, profile, subscription.getLastSeenMessageId());
-        return count;
+        return messageService.countOfUnreadMessage(chat, profile, subscription.getLastSeenMessageId());
     }
 
-    @PutMapping("/change_last_seen_message/{messageId}")
+    @PutMapping("/last-seen-message/{messageId}")
     public Long changeLastSeenMessage(@PathVariable Long messageId) {
         Profile profile = userAuthenticationService.getAuthenticatedProfile();
         Message message = messageService.getMessageById(messageId);

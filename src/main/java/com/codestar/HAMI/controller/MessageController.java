@@ -3,8 +3,8 @@ package com.codestar.HAMI.controller;
 import com.codestar.HAMI.entity.Chat;
 import com.codestar.HAMI.entity.Message;
 import com.codestar.HAMI.entity.Profile;
-import com.codestar.HAMI.model.ChatMessagesModel;
 import com.codestar.HAMI.entity.Subscription;
+import com.codestar.HAMI.model.ChatMessagesModel;
 import com.codestar.HAMI.model.MessageForwardRequest;
 import com.codestar.HAMI.model.MessageModel;
 import com.codestar.HAMI.service.ChatService;
@@ -50,35 +50,53 @@ public class MessageController {
     public ChatMessagesModel getChatMessages(@PathVariable Long chatId) {
         Chat chat = chatService.getChatById(chatId);
         List<Message> messages = messageService.getChatMessages(chat);
-        Message pinnedMessage = messageService.getMessageById(chat.getPinnedMessageId());
 
-        ChatMessagesModel response = ChatMessagesModel
-                .builder()
-                .messages(
-                        messages.stream()
-                                .map(message -> {
-                                    MessageModel.MessageModelBuilder builder = 
-                                    MessageModel
-                                        .builder()
-                                        .file(message.getFile())
-                                        .text(message.getText())
-                                        .createdAt(message.getCreatedAt())
-                                        .id(message.getId())
-                                        .viewCount(message.getViewCount())
-                                        .forwarded(false);
+        ChatMessagesModel.ChatMessagesModelBuilder responseBuilder =
+                ChatMessagesModel
+                        .builder()
+                        .messages(
+                                messages.stream()
+                                        .map(message -> {
+                                                    MessageModel.MessageModelBuilder builder =
+                                                            MessageModel
+                                                                    .builder()
+                                                                    .file(message.getFile())
+                                                                    .text(message.getText())
+                                                                    .createdAt(message.getCreatedAt())
+                                                                    .id(message.getId())
+                                                                    .viewCount(message.getViewCount())
+                                                                    .fullName(message.getProfile().getFullName())
+                                                                    .forwarded(false);
 
-                                    if (message.getSubscription() != null) {
-                                        builder.forwarded(true)
-                                        .fullName(message.getSubscription().getFullName());
-                                    }
-                                    return builder.build();
-                                    }
-                                )
-                                .collect(Collectors.toList())
-                )
-                .build();
-        response.setPinned(pinnedMessage);
-        return response;
+                                                    if (message.getSubscription() != null) {
+                                                        builder.forwarded(true)
+                                                                .fullName(message.getSubscription().getFullName());
+                                                    }
+                                                    return builder.build();
+                                                }
+                                        )
+                                        .collect(Collectors.toList())
+                        );
+        if (chat.getPinnedMessageId() != null) {
+            Message pinnedMessage = messageService.getMessageById(chat.getPinnedMessageId());
+            responseBuilder
+                    .pinned(
+                            MessageModel
+                                    .builder()
+                                    .id(pinnedMessage.getId())
+                                    .text(pinnedMessage.getText())
+                                    .file(pinnedMessage.getFile())
+                                    .createdAt(pinnedMessage.getCreatedAt())
+                                    .fullName(
+                                            pinnedMessage.getSubscription() == null
+                                                    ? pinnedMessage.getProfile().getFullName()
+                                                    : pinnedMessage.getSubscription().getFullName()
+                                    )
+                                    .forwarded(pinnedMessage.getSubscription() != null)
+                                    .build()
+                    );
+        }
+        return responseBuilder.build();
     }
 
     @PostMapping("/{chatId}")
@@ -88,7 +106,7 @@ public class MessageController {
         Profile profile = userAuthenticationService.getAuthenticatedProfile();
         Chat chat = chatService.getChatById(chatId);
         Message message = messageService.createMessage(messageData, profile, chat);
-        if (!subscriptionService.hasSubscription(chat, profile)){
+        if (!subscriptionService.hasSubscription(chat, profile)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access Denied");
         }
         return MessageModel
@@ -114,16 +132,16 @@ public class MessageController {
     }
 
     @PostMapping("/forward")
-    public MessageModel forwardMessage(@Valid @RequestBody MessageForwardRequest forwardRequest){
+    public MessageModel forwardMessage(@Valid @RequestBody MessageForwardRequest forwardRequest) {
         Profile senderProfile = userAuthenticationService.getAuthenticatedProfile();
         Chat senderChat = chatService.getChatById(forwardRequest.getChatId());
         Message message = messageService.getMessageById(forwardRequest.getMessageId());
-        if (message == null){
-            throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Message Not Found!");
+        if (message == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Message Not Found!");
         }
         Chat chat = message.getChat();
         if (!subscriptionService.hasSubscription(chat, senderProfile)
-            || !subscriptionService.hasSubscription(senderChat, senderProfile)){
+                || !subscriptionService.hasSubscription(senderChat, senderProfile)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access Denied");
         }
         Profile profile = message.getProfile();
@@ -154,13 +172,13 @@ public class MessageController {
         }
     }
 
-    @PutMapping("view_message/{messageId}")
+    @PutMapping("view-message/{messageId}")
     public Long viewMessage(@PathVariable long messageId) {
         Message message = messageService.getMessageById(messageId);
-        if(message == null)
+        if (message == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "message doesn't exist.");
 
-        if(message.getViewCount() == 0)
+        if (message.getViewCount() == 0)
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "this message a channel message.");
 
         return messageService.updateMessageView(messageId);

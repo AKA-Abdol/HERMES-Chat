@@ -13,10 +13,6 @@ public class ChatMessagesModel {
     private MessageModel pinned;
 
     public void setPinned(Message message) {
-        if (message == null) {
-            pinned = null;
-            return;
-        }
         pinned = MessageModel
                 .builder()
                 .id(message.getId())
