@@ -28,5 +28,6 @@ public class ChatElasticModel {
 
     private byte[] photo;
 
+    @Field(type = FieldType.Text, name = "fullName")
     private String fullName;
 }

@@ -1,5 +1,6 @@
 package com.codestar.HAMI.service;
 
+import com.codestar.HAMI.elasticsearch.model.ChatElasticModel;
 import com.codestar.HAMI.entity.Chat;
 import com.codestar.HAMI.entity.ChatTypeEnum;
 import com.codestar.HAMI.entity.Profile;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import com.codestar.HAMI.elasticsearch.service.ChatElasticService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,6 +27,9 @@ public class ChatService {
 
     @Autowired
     SubscriptionService subscriptionService;
+
+    @Autowired
+    ChatElasticService chatElasticService;
 
 
     public List<Chat> getAllChats(Long profileId) {
@@ -52,7 +57,7 @@ public class ChatService {
                 ));
     }
 
-    public Chat updateChat(Long chatId, Chat chat) {
+    public Chat updateChat(Long chatId, Chat chat) throws IOException {
         Chat updateChat = chatRepository.findById(chatId)
                 .orElse(null);
 
@@ -65,15 +70,20 @@ public class ChatService {
             updateChat.setDescription(chat.getDescription());
 
             chatRepository.save(updateChat);
-//            chatElasticService.addChatToIndex(updateChat); Ignore elastic
+            chatElasticService.addChatToIndex(updateChat);
         }
 
         return updateChat;
     }
 
-    public Chat createChat(Chat chat) {
+    public Chat createChat(Chat chat){
         chat = chatRepository.saveAndFlush(chat);
-//        chatElasticService.addChatToIndex(chat); Ignore elastic
+        try {
+            chatElasticService.addChatToIndex(chat);
+        } catch (IOException e) {
+            System.out.println("ELASTIC SEARCH ERROR ***");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong");
+        }
         return chat;
     }
 
@@ -86,7 +96,7 @@ public class ChatService {
         chat.setDescription(description);
         chat.setChatType(ChatTypeEnum.CHANNEL);
         chat.setCreatorProfileId(creatorProfileId);
-        return chatRepository.save(chat);
+        return createChat(chat);
     }
 
     public Chat createChatForGroup(
@@ -110,14 +120,12 @@ public class ChatService {
     }
 
     public List<Chat> getChatsByUserNameFuzziness(String username) throws IOException {
-//        Ignore elastic
-//        List<ChatElasticModel> searchResponse =  chatElasticService.matchChatsWithUsername(username);
-//        List<Chat> chats  = new ArrayList<>();
-//        for(ChatElasticModel chatElasticModel : searchResponse){
-//            Long chatId = chatElasticModel.getId();
-//            chats.add(this.getChatById(chatId));
-//        }
-        return getChatsByUserNamePrefix(username);
+        List<ChatElasticModel> chatElasticModels =  chatElasticService.matchChatsWithUsername(username);
+        List<Chat> chats = new ArrayList<>();
+        for(ChatElasticModel chatElasticModel: chatElasticModels){
+            chats.add(this.getChatById(chatElasticModel.getId()));
+        }
+        return chats;
     }
 
     public List<Chat> getChatsByUserNamePrefix(String username) {

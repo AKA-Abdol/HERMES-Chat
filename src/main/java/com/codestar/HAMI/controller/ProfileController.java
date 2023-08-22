@@ -35,7 +35,11 @@ public class ProfileController {
     @PostMapping()//TODO picture
     public ProfileModel createProfile(@RequestBody Profile profile) {
         Long userId = userAuthenticationService.getAuthenticatedUser().getId();
-        profile = profileService.createProfile(profile, userId);
+        try {
+            profile = profileService.createProfile(profile, userId);
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something were wrong");
+        }
         if (profile == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No User Found To Create Profile");
         }

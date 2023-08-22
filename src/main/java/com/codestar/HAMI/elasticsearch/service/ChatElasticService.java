@@ -1,68 +1,43 @@
 package com.codestar.HAMI.elasticsearch.service;
 
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.codestar.HAMI.elasticsearch.model.ChatElasticModel;
 import com.codestar.HAMI.elasticsearch.repository.ChatElasticRepository;
 import com.codestar.HAMI.entity.Chat;
-import org.elasticsearch.common.unit.Fuzziness;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.SearchHit;
-import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
-import org.springframework.data.elasticsearch.core.query.IndexQuery;
-import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
-import org.springframework.data.elasticsearch.core.query.*;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-//@Service
+@Service
 public class ChatElasticService {
 
-//    private final String INDEX_NAME = "chat";
-//
-//    @Autowired @Qualifier("chatElastic")
-//    ChatElasticRepository chatElasticRepository;
-//
-//    @Autowired
-//    ElasticsearchOperations elasticsearchOperations;
-//
-//    public void addChatToIndex(Chat chat){
-//        ChatElasticModel chatElasticModel = ChatElasticModel
-//                .builder()
-//                .id(chat.getId())
-//                .username(chat.getName())
-//                .build();
-//        IndexQuery query = new IndexQueryBuilder()
-//                .withId(chatElasticModel.getId().toString())
-//                .withObject(chatElasticModel)
-//                .build();
-//        elasticsearchOperations.index(query, IndexCoordinates.of(INDEX_NAME));
-//    }
-//
-//    public void removeChatFromIndex(Chat chat){
-//        chatElasticRepository.deleteById(chat.getId());
-//    }
-//
-//    public List<ChatElasticModel> matchChatsWithUsername(String fieldValue) throws IOException {
-//        QueryBuilder query = QueryBuilders
-//                .matchQuery("username", fieldValue)
-//                .fuzziness(Fuzziness.AUTO);
-//
-//        Query searchQuery = new NativeSearchQueryBuilder()
-//                .withQuery(query)
-//                .build();
-//
-//        SearchHits<ChatElasticModel> searchHits =
-//                elasticsearchOperations.search(searchQuery, ChatElasticModel.class, IndexCoordinates.of(INDEX_NAME));
-//
-//        return searchHits.stream()
-//                .map(SearchHit::getContent)
-//                .collect(Collectors.toList());
-//    }
+    private final String INDEX_NAME = "chat";
+
+    @Autowired
+    ChatElasticRepository chatElasticRepository;
+
+    public void addChatToIndex(Chat chat) throws IOException {
+        ChatElasticModel chatElasticModel = ChatElasticModel
+                .builder()
+                .id(chat.getId())
+                .username(chat.getName())
+                .build();
+        chatElasticRepository.createOrUpdate(chatElasticModel);
+    }
+
+    public void removeChatFromIndex(Chat chat) throws IOException {
+        chatElasticRepository.deleteById(chat.getId());
+    }
+
+    public List<ChatElasticModel> matchChatsWithUsername(String fieldValue) throws IOException{
+        List<Hit<ChatElasticModel>> listOfHits = chatElasticRepository.searchWithFuzziness(fieldValue);
+        List<ChatElasticModel> chatElasticModels  = new ArrayList<>();
+        for(Hit<ChatElasticModel> hit : listOfHits){
+            chatElasticModels.add(hit.source());
+        }
+        return chatElasticModels;
+    }
 }
