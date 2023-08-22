@@ -91,5 +91,8 @@ public class SubscriptionService {
         return subscription.getLastSeenMessageId();
     }
 
+    public List<Subscription> getSubscriptionsByChatId(Long chatId) {
+        return subscriptionRepository.findByChatId(chatId);
+    }
 
 }
