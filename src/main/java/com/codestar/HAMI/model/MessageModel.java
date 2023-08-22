@@ -12,6 +12,7 @@ public class MessageModel {
     private String text;
     private Instant createdAt;
     private byte[] file;
+    boolean isSelf;
     private Long viewCount;
     private String fullName;
     private Boolean forwarded;

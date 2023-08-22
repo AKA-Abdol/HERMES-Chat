@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -82,9 +84,13 @@ public class ProfileController {
 
     @GetMapping("/search")
     public List<ChatElasticModel> getSearchedProfileAndChats(@RequestParam(required = true) String username) {
+        Long userProfileId = userAuthenticationService.getAuthenticatedProfile().getId();
         List<Profile> profiles = null;
         List<Chat> chats = null;
         List<ChatElasticModel> result = null;
+        if (username.length() < 3){
+            return new ArrayList<>();
+        }
         try {
             profiles = profileService.getProfilesByUserNameFuzziness(username);
             chats = chatService.getChatsByUserNameFuzziness(username);
@@ -92,12 +98,14 @@ public class ProfileController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something were wrong");
         }
         result = profiles.stream()
+                .filter(profile -> !Objects.equals(profile.getId(), userProfileId)) // Skip profile with ID 5
                 .map(profile -> ChatElasticModel
                         .builder()
                         .id(profile.getId())
                         .username(profile.getUsername())
                         .chatType(ChatTypeEnum.PV.toString())
                         .photo(profile.getPhoto())
+                        .fullName(profile.getFullName(profile))
                         .build())
                 .collect(Collectors.toList());
         result.addAll(
@@ -106,7 +114,7 @@ public class ProfileController {
                         .map(chat -> ChatElasticModel
                                 .builder()
                                 .id(chat.getId())
-                                .username(chat.getName())
+                                .fullName(chat.getName())
                                 .photo(chat.getPhoto())
                                 .chatType(chat.getChatType().toString())
                                 .build()
