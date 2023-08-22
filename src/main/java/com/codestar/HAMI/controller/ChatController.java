@@ -1,12 +1,7 @@
 package com.codestar.HAMI.controller;
 
-import com.codestar.HAMI.entity.Chat;
-import com.codestar.HAMI.entity.ChatTypeEnum;
-import com.codestar.HAMI.entity.Message;
-import com.codestar.HAMI.entity.Profile;
-import com.codestar.HAMI.model.ChatModel;
-import com.codestar.HAMI.model.CreateChannelRequest;
-import com.codestar.HAMI.model.CreateGroupRequest;
+import com.codestar.HAMI.entity.*;
+import com.codestar.HAMI.model.*;
 import com.codestar.HAMI.repository.ChatRepository;
 import com.codestar.HAMI.service.*;
 import jakarta.validation.Valid;
@@ -170,6 +165,22 @@ public class ChatController {
         Profile profile = userAuthenticationService.getAuthenticatedProfile();
         Chat chat = chatService.getChatById(chatId);
         chatService.unpinMessage(profile, chat);
+    }
+
+    @GetMapping("/{chatId}/subscribers")
+    public List<ChatSubscriberResponse> subscribesChat(@PathVariable Long chatId) {
+        Chat chat = chatService.getChatById(chatId);
+        if(chat.getChatType() == ChatTypeEnum.PV)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "don't have access in PV");
+        List<Subscription> subscriptions = subscriptionService.getSubscriptionsByChatId(chatId);
+        return subscriptions
+                .stream()
+                .map(subscription -> ChatSubscriberResponse
+                        .builder()
+                        .photo(subscription.getProfile().getPhoto())
+                        .fullName(subscription.getProfile().getFullName())
+                        .build())
+                .toList();
     }
 
 }

@@ -15,4 +15,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     @Query("select s from Subscription s where s.profile.id = ?1")
     List<Subscription> findByProfileId(Long id);
 
+    @Query("select s from Subscription s where s.chat.id = ?1")
+    List<Subscription> findByChatId(Long id);
+
 }
