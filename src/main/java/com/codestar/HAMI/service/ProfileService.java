@@ -1,14 +1,18 @@
 package com.codestar.HAMI.service;
 
+import com.codestar.HAMI.elasticsearch.model.ProfileElasticModel;
+import com.codestar.HAMI.elasticsearch.service.ProfileElasticService;
 import com.codestar.HAMI.entity.Profile;
 import com.codestar.HAMI.entity.Subscription;
 import com.codestar.HAMI.entity.User;
 import com.codestar.HAMI.repository.ProfileRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,7 +27,11 @@ public class ProfileService {
     @Autowired
     UserAuthenticationService userAuthenticationService;
 
-    public Profile createProfile(Profile profile, long userId) {
+    @Autowired
+    ProfileElasticService profileElasticService;
+
+    @Transactional
+    public Profile createProfile(Profile profile, long userId) throws IOException {
         User user = userService.getUserById(userId);
         if (user == null) {
             return null;
@@ -31,7 +39,9 @@ public class ProfileService {
         profile.setUser(user);
         user.setProfile(profile);
         profile = profileRepository.saveAndFlush(profile);
-//        profileElasticService.addProfileToIndex(profile); Ignore elastic
+        System.out.println("Before elastic call");
+        profileElasticService.addProfileToIndex(profile);
+        System.out.println("After elastic call");
         return profile;
     }
 
@@ -40,15 +50,12 @@ public class ProfileService {
     }
 
     public List<Profile> getProfilesByUserNameFuzziness(String username) throws IOException {
-//        Ignore elastic
-//        List<ProfileElasticModel> searchResponse =  profileElasticService.matchProfilesWithUsername(username);
-//        List<Profile> listOfProducts  = new ArrayList<>();
-//        for(ProfileElasticModel profileElasticModel : searchResponse){
-//            Long ProfileId = profileElasticModel.getId();
-//            listOfProducts.add(this.getProfileById(ProfileId));
-//        }
-
-        return getProfilesByUserNamePrefix(username);
+        List<ProfileElasticModel> profileElasticModels =  profileElasticService.matchProfilesWithUsername(username);
+        List<Profile> profiles = new ArrayList<>();
+        for(ProfileElasticModel profileElasticModel: profileElasticModels){
+            profiles.add(this.getProfileById(profileElasticModel.getId()));
+        }
+        return profiles;
     }
 
     public List<Profile> getProfilesByUserNamePrefix(String username) {

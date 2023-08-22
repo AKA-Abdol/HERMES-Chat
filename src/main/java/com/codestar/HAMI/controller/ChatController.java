@@ -1,8 +1,13 @@
 package com.codestar.HAMI.controller;
 
+import com.codestar.HAMI.entity.Chat;
+import com.codestar.HAMI.entity.ChatTypeEnum;
+import com.codestar.HAMI.entity.Profile;
+import com.codestar.HAMI.model.ChatModel;
+import com.codestar.HAMI.model.CreateChannelRequest;
+import com.codestar.HAMI.model.CreateGroupRequest;
 import com.codestar.HAMI.entity.*;
 import com.codestar.HAMI.model.*;
-import com.codestar.HAMI.repository.ChatRepository;
 import com.codestar.HAMI.service.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,8 +24,6 @@ import java.util.List;
 public class ChatController {
     @Autowired
     ChatService chatService;
-    @Autowired
-    ChatRepository chatRepository;
     @Autowired
     UserAuthenticationService userAuthenticationService;
     @Autowired
@@ -72,7 +76,11 @@ public class ChatController {
         if(chat.getChatType() == ChatTypeEnum.PV)
             throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "you can't access with chatId.");
 
-        chat = chatService.updateChat(chatId,chatDetail);
+        try {
+            chat = chatService.updateChat(chatId,chatDetail);
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something were wrong");
+        }
 
         return ChatModel.builder()
                 .chatId(chat.getId())
