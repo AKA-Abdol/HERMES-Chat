@@ -30,6 +30,9 @@ public class MessageService {
     @Autowired
     SubscriptionService subscriptionService;
 
+    public List<Message> getChatMessages(Chat chat) {
+        return messageRepository.findByChatIdOrderByCreatedAtDesc(chat.getId());
+    }
 
     public List<Message> getChatMessagesByChatId(Long chatId) {
         return messageRepository.findByChatIdOrderByCreatedAtDesc(chatId);
@@ -101,6 +104,8 @@ public class MessageService {
     }
 
     public Message getMessageById(Long messageId) {
+        if (messageId == null)
+            return null;
         return messageRepository.findById(messageId).orElse(null);
     }
 

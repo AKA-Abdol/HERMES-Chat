@@ -1,7 +1,7 @@
 package com.codestar.HAMI.service;
 
-import com.codestar.HAMI.entity.*;
 import com.codestar.HAMI.entity.Chat;
+import com.codestar.HAMI.entity.ChatTypeEnum;
 import com.codestar.HAMI.entity.Profile;
 import com.codestar.HAMI.entity.Subscription;
 import com.codestar.HAMI.repository.ChatRepository;
@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ChatService {
@@ -28,14 +29,14 @@ public class ChatService {
 
     public List<Chat> getAllChats(Long profileId) {
         Profile profile = profileService.getProfileById(profileId);
-        if(profile == null) {
+        if (profile == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No Profile Found with profile id.");
         }
 
         List<Subscription> subscriptions = subscriptionService.getSubscriptionsByProfileId(profile);
 
         List<Chat> chats = new ArrayList<>();
-        for (Subscription subscription: subscriptions) {
+        for (Subscription subscription : subscriptions) {
             chats.add(subscription.getChat());
         }
 
@@ -51,13 +52,13 @@ public class ChatService {
                 ));
     }
 
-    public Chat updateChat(Long chatId ,Chat chat) {
+    public Chat updateChat(Long chatId, Chat chat) {
         Chat updateChat = chatRepository.findById(chatId)
                 .orElse(null);
 
         System.out.println(updateChat.getId());
 
-        if(updateChat != null) {
+        if (updateChat != null) {
             updateChat.setName(chat.getName());
             updateChat.setBio(chat.getBio());
             updateChat.setChatType(chat.getChatType());
@@ -76,20 +77,26 @@ public class ChatService {
         return chat;
     }
 
-    public Chat createChatForChannel(String name, byte[] photo, String description) {
+    public Chat createChatForChannel(
+            String name, byte[] photo, String description, Long creatorProfileId
+    ) {
         Chat chat = new Chat();
         chat.setName(name);
         chat.setPhoto(photo);
         chat.setDescription(description);
         chat.setChatType(ChatTypeEnum.CHANNEL);
+        chat.setCreatorProfileId(creatorProfileId);
         return chatRepository.save(chat);
     }
 
-    public Chat createChatForGroup(String name, byte[] photo) {
+    public Chat createChatForGroup(
+            String name, byte[] photo, Long creatorProfileId
+    ) {
         Chat chat = new Chat();
         chat.setName(name);
         chat.setPhoto(photo);
         chat.setChatType(ChatTypeEnum.GROUP);
+        chat.setCreatorProfileId(creatorProfileId);
         return chatRepository.save(chat);
     }
 
@@ -113,7 +120,40 @@ public class ChatService {
         return getChatsByUserNamePrefix(username);
     }
 
-    public List<Chat> getChatsByUserNamePrefix(String username){
+    public List<Chat> getChatsByUserNamePrefix(String username) {
         return chatRepository.findByNameStartsWithIgnoreCase(username);
+    }
+
+    private boolean canPinMessage(Profile profile, Chat chat) {
+        return Objects.equals(profile.getId(), chat.getCreatorProfileId());
+    }
+
+    private void savePinnedMessage(Chat chat, Long messageId) {
+        chat.setPinnedMessageId(messageId);
+        chatRepository.save(chat);
+    }
+
+    public void pinMessage(Profile profile, Chat chat, Long messageId) {
+        if (chat.getChatType() == ChatTypeEnum.PV) {
+            savePinnedMessage(chat, messageId);
+            return;
+        }
+        if (!canPinMessage(profile, chat))
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "Only Creator Can Pin A Message"
+            );
+        savePinnedMessage(chat, messageId);
+    }
+
+    public void unpinMessage(Profile profile, Chat chat) {
+        if (chat.getChatType() == ChatTypeEnum.PV) {
+            savePinnedMessage(chat, null);
+            return;
+        }
+        if (!canPinMessage(profile, chat))
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "Only Creator Can Pin A Message"
+            );
+        savePinnedMessage(chat, null);
     }
 }
