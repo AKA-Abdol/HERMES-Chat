@@ -30,7 +30,6 @@ public class MessageService {
     @Autowired
     SubscriptionService subscriptionService;
 
-
     public List<Message> getChatMessages(Chat chat) {
         return messageRepository.findByChatIdOrderByCreatedAtDesc(chat.getId());
     }
