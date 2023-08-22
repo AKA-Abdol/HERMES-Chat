@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,9 +25,6 @@ public class MessageService {
 
     @Autowired
     ChatService chatService;
-
-    @Autowired
-    ChatRepository chatRepository;
     @Autowired
     SubscriptionService subscriptionService;
 
@@ -42,6 +40,11 @@ public class MessageService {
             Message message, Profile profile, Chat chat
     ) {
         message.setChat(chat);
+        if (chat.getChatType() == ChatTypeEnum.PV || chat.getChatType() == ChatTypeEnum.GROUP)
+            message.setViewCount(0L);
+        if(chat.getChatType() == ChatTypeEnum.CHANNEL)
+            message.setViewCount(1L);
+
         message.setProfile(profile);
         return messageRepository.save(message);
     }
@@ -134,5 +137,47 @@ public class MessageService {
     private boolean canEditMessage(Message message, Profile profile) {
         return message.getProfile().getId().equals(profile.getId());
         //TODO set user access level based on user role in group and channels
+    }
+
+    public Long countOfUnreadMessage(Chat chat, Profile profile, Long lastSeenMessageId) {
+        List<Message> messages;
+        if(lastSeenMessageId == null)
+            messages = messageRepository.findAll();
+        else
+            messages = messageRepository.findMessagesAfterTheMessage(lastSeenMessageId);
+
+
+        messages = messages.stream()
+                .filter(message -> {
+                            boolean A = message.getProfile().getId() != profile.getId();
+                            boolean B = message.getChat().getId() == chat.getId();
+                            return A && B;
+                        }
+                ).toList();
+        return messages.stream().count();
+    }
+
+    public Long updateMessageView(Long messageId) {
+        Message message = messageRepository.findById(messageId).orElse(null);
+
+        if(message == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "message doesn't exist.");
+
+        message.setViewCount(message.getViewCount() + 1);
+        messageRepository.save(message);
+        return message.getViewCount();
+    }
+
+    public Message saveForwardMessage(Message message, Subscription subscription, Profile senderProfile, Chat senderChat) {
+        Message forwardMessage = createForwardMessage(message);
+        forwardMessage.setSubscription(subscription);
+        return createMessage(forwardMessage, senderProfile, senderChat);
+    }
+
+    private Message createForwardMessage(Message message){
+        Message forwardMessage = new Message();
+        forwardMessage.setText(message.getText());
+        forwardMessage.setFile(message.getFile());
+        return forwardMessage;
     }
 }
