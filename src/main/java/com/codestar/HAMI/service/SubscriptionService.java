@@ -81,4 +81,15 @@ public class SubscriptionService {
                 .toList();
     }
 
+    public Long updateLastSeenMessage(Chat chat, Profile profile, Long messageId) {
+        if(!hasSubscription(chat, profile))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This subscription doesn't exist.");
+        Subscription subscription = getSubscription(chat, profile);
+        subscription.setLastSeenMessageId(messageId);
+        subscriptionRepository.save(subscription);
+
+        return subscription.getLastSeenMessageId();
+    }
+
+
 }

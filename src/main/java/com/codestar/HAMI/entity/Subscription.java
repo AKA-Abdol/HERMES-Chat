@@ -28,6 +28,9 @@ public class Subscription {
     @JoinColumn(name = "profile_id", nullable = false)
     private Profile profile;
 
+    @Column
+    private Long lastSeenMessageId;
+
     @Hidden
     @JsonIgnore
     @OneToMany(mappedBy = "subscription")
@@ -40,7 +43,7 @@ public class Subscription {
     }
 
     @PreRemove
-    public void deleteAuthor(){
+    public void deleteMessages(){
         this.messages.forEach(message -> message.setSubscription(null));
     }
 }
