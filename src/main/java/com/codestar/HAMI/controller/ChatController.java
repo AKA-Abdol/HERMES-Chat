@@ -219,14 +219,14 @@ public class ChatController {
     @GetMapping("/{chatId}/subscribers")
     public List<ChatSubscriberResponse> subscribesChat(@PathVariable Long chatId) {
         Chat chat = chatService.getChatById(chatId);
-        if (chat.getChatType() == ChatTypeEnum.PV)
+        if(chat.getChatType() == ChatTypeEnum.PV)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "don't have access in PV");
         List<Subscription> subscriptions = subscriptionService.getSubscriptionsByChatId(chatId);
         return subscriptions
                 .stream()
                 .map(subscription -> ChatSubscriberResponse
                         .builder()
-                        .photo(null)
+                        .photo(subscription.getProfile().getPhoto())
                         .fullName(subscription.getProfile().getFullName())
                         .build())
                 .toList();
