@@ -3,18 +3,26 @@ package com.codestar.HAMI.controller;
 import com.codestar.HAMI.elasticsearch.model.ChatElasticModel;
 import com.codestar.HAMI.entity.Chat;
 import com.codestar.HAMI.entity.ChatTypeEnum;
+import com.codestar.HAMI.entity.File;
 import com.codestar.HAMI.entity.Profile;
+import com.codestar.HAMI.model.ProfileRequest;
 import com.codestar.HAMI.model.ProfileModel;
 import com.codestar.HAMI.service.ChatService;
+import com.codestar.HAMI.service.FileService;
 import com.codestar.HAMI.service.ProfileService;
+import com.codestar.HAMI.service.SubscriptionService;
 import com.codestar.HAMI.service.UserAuthenticationService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -32,10 +40,32 @@ public class ProfileController {
     @Autowired
     ChatService chatService;
 
-    @PostMapping()//TODO picture
-    public ProfileModel createProfile(@RequestBody Profile profile) {
+    @Autowired
+    SubscriptionService subscriptionService;
+
+    @Autowired
+    FileService fileService;
+
+    @PostMapping()
+    @Transactional
+    public ProfileModel createProfile(
+            @RequestBody ProfileRequest profileData
+    ) {
         Long userId = userAuthenticationService.getAuthenticatedUser().getId();
-        profile = profileService.createProfile(profile, userId);
+        Profile newProfile = new Profile(profileData);
+        if (profileData.getPhotoId() != null) {
+            File profilePhoto = fileService.getFileById(profileData.getPhotoId());
+            newProfile.setPhoto(profilePhoto);
+        }
+            Profile profile;
+        try {
+            Chat chat = chatService.createSelfChat();
+            profile = profileService.createProfile(newProfile, userId, chat.getId());
+            subscriptionService.createSubscription(chat, profile);
+
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something were wrong");
+        }
         if (profile == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No User Found To Create Profile");
         }
@@ -72,6 +102,7 @@ public class ProfileController {
         if (profile == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No profile found");
         }
+        System.out.println("profilePhoto|"+ Arrays.toString(profile.getPhoto()) +"|");
         return ProfileModel
                 .builder()
                 .firstName(profile.getFirstName())
@@ -84,10 +115,11 @@ public class ProfileController {
 
     @GetMapping("/search")
     public List<ChatElasticModel> getSearchedProfileAndChats(@RequestParam(required = true) String username) {
-        Long userProfileId = userAuthenticationService.getAuthenticatedProfile().getId();
+        Profile userProfile = userAuthenticationService.getAuthenticatedProfile();
         List<Profile> profiles = null;
         List<Chat> chats = null;
         List<ChatElasticModel> result = null;
+        Chat savedMessage = chatService.getChatById(userProfile.getSelfChatId());
         if (username.length() < 3){
             return new ArrayList<>();
         }
@@ -98,7 +130,7 @@ public class ProfileController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something were wrong");
         }
         result = profiles.stream()
-                .filter(profile -> !Objects.equals(profile.getId(), userProfileId)) // Skip profile with ID 5
+                .filter(profile -> !Objects.equals(profile.getId(), userProfile.getId())) // Skip profile with ID 5
                 .map(profile -> ChatElasticModel
                         .builder()
                         .id(profile.getId())
@@ -110,7 +142,7 @@ public class ProfileController {
                 .collect(Collectors.toList());
         result.addAll(
                 chats.stream()
-                        .filter(chat -> !chat.getChatType().equals(ChatTypeEnum.PV))
+                        .filter(chat -> !(chat.getChatType().equals(ChatTypeEnum.PV) || chat.getChatType().equals(ChatTypeEnum.SELF)))
                         .map(chat -> ChatElasticModel
                                 .builder()
                                 .id(chat.getId())
@@ -121,6 +153,18 @@ public class ProfileController {
                         )
                         .toList()
         );
+
+        if (username.toLowerCase().startsWith(chatService.SELF_CHAT_NAME.substring(0,3))){
+            result.add(
+              ChatElasticModel
+                      .builder()
+                      .id(savedMessage.getId())
+                      .fullName(savedMessage.getName())
+                      .chatType(savedMessage.getChatType().toString())
+                      .build()
+            );
+        }
+
         return result;
     }
 
@@ -137,5 +181,22 @@ public class ProfileController {
     ) {
         Profile profile = userAuthenticationService.getAuthenticatedProfile();
         return profileService.updateProfile(profileData, profile);
+    }
+
+    @PutMapping("/photo/{photoId}")
+    public ResponseEntity<String> changeProfilePhoto(
+            @Valid @PathVariable Long photoId
+    ) {
+        Profile profile = userAuthenticationService.getAuthenticatedProfile();
+        File photo = fileService.getFileById(photoId);
+        profileService.changeProfilePhoto(profile, photo);
+        return ResponseEntity.ok("Profile Photo Changed Successfully");
+    }
+
+    @DeleteMapping("/photo")
+    public ResponseEntity<String> deleteProfilePhoto() {
+        Profile profile = userAuthenticationService.getAuthenticatedProfile();
+        profileService.deleteProfilePhoto(profile);
+        return ResponseEntity.ok("Profile Photo Deleted Successfully");
     }
 }

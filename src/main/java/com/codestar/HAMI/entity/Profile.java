@@ -1,15 +1,17 @@
 package com.codestar.HAMI.entity;
 
+import com.codestar.HAMI.model.ProfileRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +20,7 @@ import java.util.Set;
 @Table(name = "profiles")
 @Setter
 @Getter
+@NoArgsConstructor
 public class Profile {
     @Id
     @Hidden
@@ -40,7 +43,10 @@ public class Profile {
     @Column(length = 100)
     private String bio;
 
-    private byte[] photo;
+    @Hidden
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "photo_id")
+    private File photo;
 
     @Hidden
     @JsonIgnore
@@ -55,6 +61,11 @@ public class Profile {
     @Hidden
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "profile")
     private Set<Message> messages = new HashSet<>();
+
+    @Hidden
+    @JsonIgnore
+    @NotNull
+    private Long selfChatId;
 
     public void removeMessage(Message message) {
         messages.remove(message);
@@ -72,10 +83,24 @@ public class Profile {
         lastName = profileData.getLastName();
         bio = profileData.getBio();
     }
+    public Profile(ProfileRequest profileData) {
+        username = profileData.getUsername();
+        firstName = profileData.getFirstName();
+        lastName = profileData.getLastName();
+        bio = profileData.getBio();
+    }
 
     @Hidden
     @JsonIgnore
     public String getFullName(Profile profileData) {
         return profileData.getFirstName() + " " + profileData.getLastName();
+    }
+
+    @Hidden
+    @JsonIgnore
+    public byte[] getPhoto() {
+        if (photo == null)
+            return null;
+        return photo.getData();
     }
 }

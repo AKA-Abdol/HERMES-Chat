@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -25,6 +26,7 @@ public class MessageService {
 
     @Autowired
     ChatService chatService;
+    
     @Autowired
     SubscriptionService subscriptionService;
 
@@ -50,7 +52,7 @@ public class MessageService {
     }
 
     @Transactional
-    public Message createChatAndMessage(Message message, Long profileId) {
+    public Message createChatAndMessage(Message message, Long profileId) throws IOException {
         Chat chat = createPvChat();
         chat = chatService.createChat(chat);
 
@@ -121,7 +123,6 @@ public class MessageService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User Can't Edit The Message");
 
         message.setText(messageData.getText());
-        message.setFile(messageData.getFile());
         return messageRepository.save(message);
     }
 

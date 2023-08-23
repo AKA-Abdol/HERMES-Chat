@@ -1,16 +1,11 @@
 package com.codestar.HAMI.controller;
 
-import com.codestar.HAMI.entity.Chat;
-import com.codestar.HAMI.entity.Message;
-import com.codestar.HAMI.entity.Profile;
-import com.codestar.HAMI.entity.Subscription;
+import com.codestar.HAMI.entity.*;
 import com.codestar.HAMI.model.ChatMessagesModel;
 import com.codestar.HAMI.model.MessageForwardRequest;
 import com.codestar.HAMI.model.MessageModel;
-import com.codestar.HAMI.service.ChatService;
-import com.codestar.HAMI.service.MessageService;
-import com.codestar.HAMI.service.SubscriptionService;
-import com.codestar.HAMI.service.UserAuthenticationService;
+import com.codestar.HAMI.model.MessageRequest;
+import com.codestar.HAMI.service.*;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
@@ -39,12 +34,12 @@ public class MessageController {
     Validator validator;
     @Autowired
     ChatService chatService;
-
     @Autowired
     UserAuthenticationService userAuthenticationService;
-
     @Autowired
     SubscriptionService subscriptionService;
+    @Autowired
+    FileService fileService;
 
     @GetMapping("/{chatId}")
     public ChatMessagesModel getChatMessages(@PathVariable Long chatId) {
@@ -61,7 +56,11 @@ public class MessageController {
                                                     MessageModel.MessageModelBuilder builder =
                                                             MessageModel
                                                                     .builder()
-                                                                    .file(message.getFile())
+                                                                    .file(
+                                                                            message.getFile() != null
+                                                                                    ? message.getFile().getData()
+                                                                                    : null
+                                                                    )
                                                                     .text(message.getText())
                                                                     .createdAt(message.getCreatedAt())
                                                                     .isSelf(profileId.equals(message.getProfile().getId()))
@@ -74,6 +73,12 @@ public class MessageController {
                                                         builder.forwarded(true)
                                                                 .fullName(message.getSubscription().getFullName());
                                                     }
+
+                                                    if (message.getChat().getChatType().equals(ChatTypeEnum.SELF)
+                                                        && message.getSubscription() != null){
+                                                        builder.isSelf(false);
+                                                    }
+
                                                     return builder.build();
                                                 }
                                         )
@@ -87,7 +92,11 @@ public class MessageController {
                                     .builder()
                                     .id(pinnedMessage.getId())
                                     .text(pinnedMessage.getText())
-                                    .file(pinnedMessage.getFile())
+                                    .file(
+                                            pinnedMessage.getFile() != null
+                                                    ? pinnedMessage.getFile().getData()
+                                                    : null
+                                    )
                                     .createdAt(pinnedMessage.getCreatedAt())
                                     .fullName(
                                             pinnedMessage.getSubscription() == null
@@ -103,11 +112,17 @@ public class MessageController {
 
     @PostMapping("/{chatId}")
     public MessageModel createMessage(
-            @PathVariable Long chatId, @RequestBody Message messageData
+            @PathVariable Long chatId, @RequestBody MessageRequest messageData
     ) {
         Profile profile = userAuthenticationService.getAuthenticatedProfile();
         Chat chat = chatService.getChatById(chatId);
-        Message message = messageService.createMessage(messageData, profile, chat);
+        Message newMessage = new Message();
+        newMessage.setText(messageData.getText());
+        if (messageData.getFileId() != null) {
+            File file = fileService.getFileById(messageData.getFileId());
+            newMessage.setFile(file);
+        }
+        Message message = messageService.createMessage(newMessage, profile, chat);
         if (!subscriptionService.hasSubscription(chat, profile)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access Denied");
         }
@@ -116,7 +131,11 @@ public class MessageController {
                 .createdAt(message.getCreatedAt())
                 .text(message.getText())
                 .viewCount(message.getViewCount())
-                .file(null)
+                .file(
+                        message.getFile() != null
+                                ? message.getFile().getData()
+                                : null
+                )
                 .build();
     }
 
@@ -127,10 +146,11 @@ public class MessageController {
 
     @PutMapping("/{messageId}")
     public Message editMessage(
-            @PathVariable Long messageId, @Valid @RequestBody Message messageData
+            @PathVariable Long messageId,
+            @Valid @RequestBody Message message
     ) {
         Profile profile = userAuthenticationService.getAuthenticatedProfile();
-        return messageService.editMessage(messageId, messageData, profile);
+        return messageService.editMessage(messageId, message, profile);
     }
 
     @PostMapping("/forward")
@@ -152,7 +172,11 @@ public class MessageController {
         return MessageModel
                 .builder()
                 .createdAt(message.getCreatedAt())
-                .file(message.getFile())
+                .file(
+                        message.getFile() != null
+                                ? message.getFile().getData()
+                                : null
+                )
                 .text(message.getText())
                 .forwarded(true)
                 .fullName(message.getSubscription().getFullName())
