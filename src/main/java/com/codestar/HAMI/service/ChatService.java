@@ -33,6 +33,8 @@ public class ChatService {
     @Autowired
     ChatElasticService chatElasticService;
 
+    final public String SELF_CHAT_NAME = "saved message";
+
 
     public List<Chat> getAllChats(Long profileId) {
         Profile profile = profileService.getProfileById(profileId);
@@ -170,6 +172,13 @@ public class ChatService {
                     HttpStatus.FORBIDDEN, "Only Creator Can Pin A Message"
             );
         savePinnedMessage(chat, null);
+    }
+
+    public Chat createSelfChat() {
+        Chat chat = new Chat();
+        chat.setName(SELF_CHAT_NAME);
+        chat.setChatType(ChatTypeEnum.SELF);
+        return createChat(chat);
     }
 
     public void setChatPhoto(Chat chat, File photo) {
