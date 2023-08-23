@@ -1,5 +1,6 @@
 package com.codestar.HAMI.service;
 
+import com.codestar.HAMI.entity.File;
 import com.codestar.HAMI.elasticsearch.model.ProfileElasticModel;
 import com.codestar.HAMI.elasticsearch.service.ProfileElasticService;
 import com.codestar.HAMI.entity.Profile;
@@ -83,5 +84,15 @@ public class ProfileService {
     public Profile updateProfile(Profile profileData, Profile profile) {
         profile.setProfile(profileData);
         return profileRepository.save(profile);
+    }
+
+    public void changeProfilePhoto(Profile profile, File photo) {
+        profile.setPhoto(photo);
+        profileRepository.save(profile);
+    }
+
+    public void deleteProfilePhoto(Profile profile) {
+        profile.setPhoto(null);
+        profileRepository.save(profile);
     }
 }

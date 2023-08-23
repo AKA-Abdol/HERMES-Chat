@@ -1,10 +1,12 @@
 package com.codestar.HAMI.service;
 
+import com.codestar.HAMI.entity.*;
 import com.codestar.HAMI.elasticsearch.model.ChatElasticModel;
 import com.codestar.HAMI.entity.Chat;
 import com.codestar.HAMI.entity.ChatTypeEnum;
 import com.codestar.HAMI.entity.Profile;
 import com.codestar.HAMI.entity.Subscription;
+
 import com.codestar.HAMI.repository.ChatRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -59,9 +61,14 @@ public class ChatService {
 
     public Chat updateChat(Long chatId, Chat chat) throws IOException {
         Chat updateChat = chatRepository.findById(chatId)
-                .orElse(null);
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Chat Not Found!")
+                );
 
-        System.out.println(updateChat.getId());
+        updateChat.setName(chat.getName());
+        updateChat.setBio(chat.getBio());
+        updateChat.setChatType(chat.getChatType());
+        updateChat.setDescription(chat.getDescription());
 
         if (updateChat != null) {
             updateChat.setName(chat.getName());
@@ -74,7 +81,7 @@ public class ChatService {
         }
 
         return updateChat;
-    }
+}
 
     public Chat createChat(Chat chat){
         chat = chatRepository.saveAndFlush(chat);
@@ -88,7 +95,7 @@ public class ChatService {
     }
 
     public Chat createChatForChannel(
-            String name, byte[] photo, String description, Long creatorProfileId
+            String name, File photo, String description, Long creatorProfileId
     ) {
         Chat chat = new Chat();
         chat.setName(name);
@@ -100,7 +107,7 @@ public class ChatService {
     }
 
     public Chat createChatForGroup(
-            String name, byte[] photo, Long creatorProfileId
+            String name, File photo, Long creatorProfileId
     ) {
         Chat chat = new Chat();
         chat.setName(name);
@@ -114,7 +121,7 @@ public class ChatService {
         Chat chat = new Chat();
         Profile profile = profileService.getProfileById(profileId);
         chat.setName(profile.getFirstName() + " " + profile.getLastName());
-        chat.setPhoto(profile.getPhoto());
+        chat.setPhoto(null);
         chat.setChatType(ChatTypeEnum.PV);
         return chatRepository.save(chat);
     }
@@ -163,5 +170,10 @@ public class ChatService {
                     HttpStatus.FORBIDDEN, "Only Creator Can Pin A Message"
             );
         savePinnedMessage(chat, null);
+    }
+
+    public void setChatPhoto(Chat chat, File photo) {
+        chat.setPhoto(photo);
+        chatRepository.save(chat);
     }
 }

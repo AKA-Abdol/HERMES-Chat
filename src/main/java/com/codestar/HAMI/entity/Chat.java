@@ -43,9 +43,10 @@ public class Chat {
     @Size(max = 200)
     private String description;
 
-    @Column(length = 10_000_000)
-    @Size(max = 10_000_000)
-    private byte[] photo;
+    @Hidden
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "photo_id")
+    private File photo;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "chat")
     @Hidden
@@ -79,6 +80,7 @@ public class Chat {
         return destinationProfile.getFirstName() + destinationProfile.getLastName();
     }
 
+    @Hidden
     public MessagePreview getLastMessagePreview() {
         if (messages.size() == 0)
             return null;
@@ -89,5 +91,13 @@ public class Chat {
                 .toList()
                 .get(messages.size() - 1)
                 .getPreview();
+    }
+
+    @Hidden
+    @JsonIgnore
+    public byte[] getPhoto() {
+        if (photo == null)
+            return null;
+        return photo.getData();
     }
 }

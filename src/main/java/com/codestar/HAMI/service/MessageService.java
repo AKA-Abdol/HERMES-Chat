@@ -122,7 +122,6 @@ public class MessageService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User Can't Edit The Message");
 
         message.setText(messageData.getText());
-        message.setFile(messageData.getFile());
         return messageRepository.save(message);
     }
 

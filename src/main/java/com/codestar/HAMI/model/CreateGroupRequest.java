@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class CreateGroupRequest {
     private String name;
 
-    private byte[] photo;
+    private Long photoId;
 
     private ArrayList<Long> profileIds;
 
