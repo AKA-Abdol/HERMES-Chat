@@ -10,6 +10,6 @@ public class SubscriptionResponse {
     private Long chatId;
     private String name;
     private ChatTypeEnum chatType;
-    private byte[] image;
+    private byte[] photo;
     private MessagePreview lastMessage;
 }

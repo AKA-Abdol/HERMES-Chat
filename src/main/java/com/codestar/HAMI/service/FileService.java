@@ -43,11 +43,11 @@ public class FileService {
     }
 
     public File getFileById(Long fileId) {
-        File file = fileRepository.findById(fileId).orElse(null);
-        if(file == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "this file id doesn't exist!");
-        }
-        return file;
+        return fileRepository
+                .findById(fileId)
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "File Doesn't Exits")
+                );
     }
 
     public List<File> getFiles() {

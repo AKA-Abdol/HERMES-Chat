@@ -12,14 +12,17 @@ services:
         volumes:
             - pgdata:/var/lib/postgresql/data
 
-#    elasticsearch:
-#        image: elasticsearch:7.17.9
-#        restart: always
-#        ports:
-#            - 9200:9200
-#        environment:
-#            - discovery.type=single-node
-#            - xpack.security.enabled=false
+    elasticsearch:
+        image: elasticsearch:8.8.0
+        restart: always
+        ports:
+            - 9200:9200
+        environment:
+            - discovery.type=single-node
+            - xpack.security.enabled=false
+            - ingest.geoip.downloader.enabled=false
+            - xpack.security.transport.ssl.enabled=false
+            - xpack.security.http.ssl.enabled=false
 
     backend:
         restart: on-failure
@@ -27,28 +30,28 @@ services:
             context: .
         depends_on:
             - db
-#            - elasticsearch
+            - elasticsearch
         environment:
             SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/hermes_postgres
             SPRING_DATASOURCE_USERNAME: postgres
             SPRING_DATASOURCE_PASSWORD: 123123
             SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
-#            ELASTICSEARCH_URL: elasticsearch:9200
-#            SPRING_DATA_ELASTICSEARCH_CLUSTERNODES: elasticsearch:9200
-#            ELASTIC_HOST: elasticsearch
+            ELASTICSEARCH_URL: elasticsearch:9200
+            SPRING_DATA_ELASTICSEARCH_CLUSTERNODES: elasticsearch:9200
+            ELASTIC_HOST: elasticsearch
 
         ports:
             -   8080:8080
 
 
-    dbadmin:
-        image: dpage/pgadmin4
-        restart: always
-        environment:
-            PGADMIN_DEFAULT_EMAIL: admin@admin.com
-            PGADMIN_DEFAULT_PASSWORD: 123123
-        ports:
-            - "5050:80"
+#    dbadmin:
+#        image: dpage/pgadmin4
+#        restart: always
+#        environment:
+#            PGADMIN_DEFAULT_EMAIL: admin@admin.com
+#            PGADMIN_DEFAULT_PASSWORD: 123123
+#        ports:
+#            - "5050:80"
 
 volumes:
     pgdata:

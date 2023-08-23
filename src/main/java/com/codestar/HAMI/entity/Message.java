@@ -37,9 +37,10 @@ public class Message {
     @Hidden
     private Instant createdAt;
 
-    @Column(length = 10_000_000)
-    @Size(max = 10_000_000)
-    private byte[] file;
+    @Hidden
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "file_id")
+    private File file;
 
     @Hidden
     @JsonIgnore
@@ -72,4 +73,5 @@ public class Message {
                 .data(text)
                 .build();
     }
+
 }

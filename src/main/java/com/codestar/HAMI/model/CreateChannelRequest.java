@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class CreateChannelRequest {
     private String name;
 
-    private byte[] photo;
+    private Long photoId;
 
     private String description;
 
