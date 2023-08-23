@@ -56,7 +56,11 @@ public class MessageController {
                                                     MessageModel.MessageModelBuilder builder =
                                                             MessageModel
                                                                     .builder()
-                                                                    .file(message.getFile().getData())
+                                                                    .file(
+                                                                            message.getFile() != null
+                                                                                    ? message.getFile().getData()
+                                                                                    : null
+                                                                    )
                                                                     .text(message.getText())
                                                                     .createdAt(message.getCreatedAt())
                                                                     .isSelf(profileId.equals(message.getProfile().getId()))
@@ -82,7 +86,11 @@ public class MessageController {
                                     .builder()
                                     .id(pinnedMessage.getId())
                                     .text(pinnedMessage.getText())
-                                    .file(pinnedMessage.getFile().getData())
+                                    .file(
+                                            pinnedMessage.getFile() != null
+                                                    ? pinnedMessage.getFile().getData()
+                                                    : null
+                                    )
                                     .createdAt(pinnedMessage.getCreatedAt())
                                     .fullName(
                                             pinnedMessage.getSubscription() == null
@@ -117,7 +125,11 @@ public class MessageController {
                 .createdAt(message.getCreatedAt())
                 .text(message.getText())
                 .viewCount(message.getViewCount())
-                .file(message.getFile().getData())
+                .file(
+                        message.getFile() != null
+                                ? message.getFile().getData()
+                                : null
+                )
                 .build();
     }
 
@@ -154,7 +166,11 @@ public class MessageController {
         return MessageModel
                 .builder()
                 .createdAt(message.getCreatedAt())
-                .file(message.getFile().getData())
+                .file(
+                        message.getFile() != null
+                                ? message.getFile().getData()
+                                : null
+                )
                 .text(message.getText())
                 .forwarded(true)
                 .fullName(message.getSubscription().getFullName())
