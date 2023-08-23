@@ -51,7 +51,7 @@ public class ProfileController {
             File profilePhoto = fileService.getFileById(profileData.getPhotoId());
             newProfile.setPhoto(profilePhoto);
         }
-
+            Profile profile;
         try {
             profile = profileService.createProfile(newProfile, userId);
         } catch (IOException e) {
