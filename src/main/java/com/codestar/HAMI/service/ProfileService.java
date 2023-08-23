@@ -32,12 +32,13 @@ public class ProfileService {
     ProfileElasticService profileElasticService;
 
     @Transactional
-    public Profile createProfile(Profile profile, long userId) throws IOException {
+    public Profile createProfile(Profile profile, long userId, Long chatId) throws IOException {
         User user = userService.getUserById(userId);
         if (user == null) {
             return null;
         }
         profile.setUser(user);
+        profile.setSelfChatId(chatId);
         user.setProfile(profile);
         profile = profileRepository.saveAndFlush(profile);
         System.out.println("Before elastic call");

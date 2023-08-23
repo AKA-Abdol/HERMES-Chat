@@ -73,6 +73,12 @@ public class MessageController {
                                                         builder.forwarded(true)
                                                                 .fullName(message.getSubscription().getFullName());
                                                     }
+
+                                                    if (message.getChat().getChatType().equals(ChatTypeEnum.SELF)
+                                                        && message.getSubscription() != null){
+                                                        builder.isSelf(false);
+                                                    }
+
                                                     return builder.build();
                                                 }
                                         )

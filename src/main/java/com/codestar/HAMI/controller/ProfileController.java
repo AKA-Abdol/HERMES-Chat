@@ -10,10 +10,12 @@ import com.codestar.HAMI.model.ProfileModel;
 import com.codestar.HAMI.service.ChatService;
 import com.codestar.HAMI.service.FileService;
 import com.codestar.HAMI.service.ProfileService;
+import com.codestar.HAMI.service.SubscriptionService;
 import com.codestar.HAMI.service.UserAuthenticationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -39,9 +41,13 @@ public class ProfileController {
     ChatService chatService;
 
     @Autowired
+    SubscriptionService subscriptionService;
+
+    @Autowired
     FileService fileService;
 
     @PostMapping()
+    @Transactional
     public ProfileModel createProfile(
             @RequestBody ProfileRequest profileData
     ) {
@@ -53,7 +59,10 @@ public class ProfileController {
         }
             Profile profile;
         try {
-            profile = profileService.createProfile(newProfile, userId);
+            Chat chat = chatService.createSelfChat();
+            profile = profileService.createProfile(newProfile, userId, chat.getId());
+            subscriptionService.createSubscription(chat, profile);
+
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something were wrong");
         }
@@ -106,10 +115,11 @@ public class ProfileController {
 
     @GetMapping("/search")
     public List<ChatElasticModel> getSearchedProfileAndChats(@RequestParam(required = true) String username) {
-        Long userProfileId = userAuthenticationService.getAuthenticatedProfile().getId();
+        Profile userProfile = userAuthenticationService.getAuthenticatedProfile();
         List<Profile> profiles = null;
         List<Chat> chats = null;
         List<ChatElasticModel> result = null;
+        Chat savedMessage = chatService.getChatById(userProfile.getSelfChatId());
         if (username.length() < 3){
             return new ArrayList<>();
         }
@@ -120,7 +130,7 @@ public class ProfileController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something were wrong");
         }
         result = profiles.stream()
-                .filter(profile -> !Objects.equals(profile.getId(), userProfileId)) // Skip profile with ID 5
+                .filter(profile -> !Objects.equals(profile.getId(), userProfile.getId())) // Skip profile with ID 5
                 .map(profile -> ChatElasticModel
                         .builder()
                         .id(profile.getId())
@@ -132,7 +142,7 @@ public class ProfileController {
                 .collect(Collectors.toList());
         result.addAll(
                 chats.stream()
-                        .filter(chat -> !chat.getChatType().equals(ChatTypeEnum.PV))
+                        .filter(chat -> !(chat.getChatType().equals(ChatTypeEnum.PV) || chat.getChatType().equals(ChatTypeEnum.SELF)))
                         .map(chat -> ChatElasticModel
                                 .builder()
                                 .id(chat.getId())
@@ -143,6 +153,18 @@ public class ProfileController {
                         )
                         .toList()
         );
+
+        if (username.toLowerCase().startsWith(chatService.SELF_CHAT_NAME.substring(0,3))){
+            result.add(
+              ChatElasticModel
+                      .builder()
+                      .id(savedMessage.getId())
+                      .fullName(savedMessage.getName())
+                      .chatType(savedMessage.getChatType().toString())
+                      .build()
+            );
+        }
+
         return result;
     }
 

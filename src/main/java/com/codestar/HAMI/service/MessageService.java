@@ -26,6 +26,7 @@ public class MessageService {
 
     @Autowired
     ChatService chatService;
+    
     @Autowired
     SubscriptionService subscriptionService;
 

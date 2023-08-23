@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -60,6 +61,11 @@ public class Profile {
     @Hidden
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "profile")
     private Set<Message> messages = new HashSet<>();
+
+    @Hidden
+    @JsonIgnore
+    @NotNull
+    private Long selfChatId;
 
     public void removeMessage(Message message) {
         messages.remove(message);
