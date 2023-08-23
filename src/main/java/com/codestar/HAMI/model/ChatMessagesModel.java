@@ -17,7 +17,7 @@ public class ChatMessagesModel {
                 .builder()
                 .id(message.getId())
                 .text(message.getText())
-                .file(message.getFile())
+                .file(message.getFile().getData())
                 .createdAt(message.getCreatedAt())
                 .build();
     }
