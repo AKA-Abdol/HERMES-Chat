@@ -30,7 +30,7 @@ services:
             context: .
         depends_on:
             - db
-            - elasticsearch
+#            - elasticsearch
         environment:
             SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/hermes_postgres
             SPRING_DATASOURCE_USERNAME: postgres
