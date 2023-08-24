@@ -30,9 +30,6 @@ public class ChatService {
     @Autowired
     SubscriptionService subscriptionService;
 
-    @Autowired
-    ChatElasticService chatElasticService;
-
     final public String SELF_CHAT_NAME = "saved message";
 
 
@@ -79,7 +76,7 @@ public class ChatService {
             updateChat.setDescription(chat.getDescription());
 
             chatRepository.save(updateChat);
-            chatElasticService.addChatToIndex(updateChat);
+//            chatElasticService.addChatToIndex(updateChat);
         }
 
         return updateChat;
@@ -87,12 +84,12 @@ public class ChatService {
 
     public Chat createChat(Chat chat){
         chat = chatRepository.saveAndFlush(chat);
-        try {
-            chatElasticService.addChatToIndex(chat);
-        } catch (IOException e) {
-            System.out.println("ELASTIC SEARCH ERROR ***");
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong");
-        }
+//        try {
+//            chatElasticService.addChatToIndex(chat);
+//        } catch (IOException e) {
+//            System.out.println("ELASTIC SEARCH ERROR ***");
+//            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong");
+//        }
         return chat;
     }
 
@@ -129,12 +126,12 @@ public class ChatService {
     }
 
     public List<Chat> getChatsByUserNameFuzziness(String username) throws IOException {
-        List<ChatElasticModel> chatElasticModels =  chatElasticService.matchChatsWithUsername(username);
-        List<Chat> chats = new ArrayList<>();
-        for(ChatElasticModel chatElasticModel: chatElasticModels){
-            chats.add(this.getChatById(chatElasticModel.getId()));
-        }
-        return chats;
+//        List<ChatElasticModel> chatElasticModels =  chatElasticService.matchChatsWithUsername(username);
+//        List<Chat> chats = new ArrayList<>();
+//        for(ChatElasticModel chatElasticModel: chatElasticModels){
+//            chats.add(this.getChatById(chatElasticModel.getId()));
+//        }
+        return getChatsByUserNamePrefix(username);
     }
 
     public List<Chat> getChatsByUserNamePrefix(String username) {

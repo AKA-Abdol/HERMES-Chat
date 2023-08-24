@@ -47,7 +47,6 @@ public class ProfileController {
     FileService fileService;
 
     @PostMapping()
-    @Transactional
     public ProfileModel createProfile(
             @RequestBody ProfileRequest profileData
     ) {

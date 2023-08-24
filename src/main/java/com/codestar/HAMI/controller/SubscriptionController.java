@@ -1,9 +1,6 @@
 package com.codestar.HAMI.controller;
 
-import com.codestar.HAMI.entity.Chat;
-import com.codestar.HAMI.entity.Message;
-import com.codestar.HAMI.entity.Profile;
-import com.codestar.HAMI.entity.Subscription;
+import com.codestar.HAMI.entity.*;
 import com.codestar.HAMI.model.ProfilesSubscriptionRequest;
 import com.codestar.HAMI.model.SubscriptionResponse;
 import com.codestar.HAMI.service.*;
@@ -73,11 +70,12 @@ public class SubscriptionController {
                 .map(
                         chat -> SubscriptionResponse
                                 .builder()
-                                .photo(null)
+                                .photo(chat.getPhoto())
                                 .name(chat.getName(profile))
                                 .chatType(chat.getChatType())
                                 .lastMessage(chat.getLastMessagePreview())
                                 .chatId(chat.getId())
+                                .profileId(chat.getPVProfileId(profile))
                                 .build()
                 )
                 .toList();

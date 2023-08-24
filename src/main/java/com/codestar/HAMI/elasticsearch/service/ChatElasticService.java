@@ -16,28 +16,28 @@ public class ChatElasticService {
 
     private final String INDEX_NAME = "chat";
 
-    @Autowired
-    ChatElasticRepository chatElasticRepository;
-
-    public void addChatToIndex(Chat chat) throws IOException {
-        ChatElasticModel chatElasticModel = ChatElasticModel
-                .builder()
-                .id(chat.getId())
-                .username(chat.getName())
-                .build();
-        chatElasticRepository.createOrUpdate(chatElasticModel);
-    }
-
-    public void removeChatFromIndex(Chat chat) throws IOException {
-        chatElasticRepository.deleteById(chat.getId());
-    }
-
-    public List<ChatElasticModel> matchChatsWithUsername(String fieldValue) throws IOException{
-        List<Hit<ChatElasticModel>> listOfHits = chatElasticRepository.searchWithFuzziness(fieldValue);
-        List<ChatElasticModel> chatElasticModels  = new ArrayList<>();
-        for(Hit<ChatElasticModel> hit : listOfHits){
-            chatElasticModels.add(hit.source());
-        }
-        return chatElasticModels;
-    }
+//    @Autowired
+//    ChatElasticRepository chatElasticRepository;
+//
+//    public void addChatToIndex(Chat chat) throws IOException {
+//        ChatElasticModel chatElasticModel = ChatElasticModel
+//                .builder()
+//                .id(chat.getId())
+//                .username(chat.getName())
+//                .build();
+//        chatElasticRepository.createOrUpdate(chatElasticModel);
+//    }
+//
+//    public void removeChatFromIndex(Chat chat) throws IOException {
+//        chatElasticRepository.deleteById(chat.getId());
+//    }
+//
+//    public List<ChatElasticModel> matchChatsWithUsername(String fieldValue) throws IOException{
+//        List<Hit<ChatElasticModel>> listOfHits = chatElasticRepository.searchWithFuzziness(fieldValue);
+//        List<ChatElasticModel> chatElasticModels  = new ArrayList<>();
+//        for(Hit<ChatElasticModel> hit : listOfHits){
+//            chatElasticModels.add(hit.source());
+//        }
+//        return chatElasticModels;
+//    }
 }
