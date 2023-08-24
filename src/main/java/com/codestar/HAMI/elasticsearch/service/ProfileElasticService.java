@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-//@Service
+@Service
 public class ProfileElasticService {
 
     private final String INDEX_NAME = "profile";
