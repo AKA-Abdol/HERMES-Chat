@@ -28,7 +28,6 @@ public class ProfileService {
     @Autowired
     UserAuthenticationService userAuthenticationService;
 
-    @Transactional
     public Profile createProfile(Profile profile, long userId, Long chatId) throws IOException {
         User user = userService.getUserById(userId);
         if (user == null) {

@@ -14,6 +14,7 @@ import lombok.Setter;
 
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -74,7 +75,9 @@ public class Chat {
         Profile destinationProfile = subscriptions
                 .stream()
                 .map(Subscription::getProfile)
-                .filter(subscriptionProfile -> subscriptionProfile != profile)
+                .filter(subProfile -> !Objects.equals(
+                        subProfile.getId(), profile.getId()
+                ))
                 .toList()
                 .get(0);
         return destinationProfile.getFirstName() + destinationProfile.getLastName();

@@ -73,7 +73,7 @@ public class SubscriptionController {
                 .map(
                         chat -> SubscriptionResponse
                                 .builder()
-                                .photo(null)
+                                .photo(chat.getPhoto())
                                 .name(chat.getName(profile))
                                 .chatType(chat.getChatType())
                                 .lastMessage(chat.getLastMessagePreview())
