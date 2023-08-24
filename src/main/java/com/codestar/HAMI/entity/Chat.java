@@ -1,19 +1,17 @@
 package com.codestar.HAMI.entity;
 
 import com.codestar.HAMI.model.MessagePreview;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -71,13 +69,37 @@ public class Chat {
     public String getName(Profile profile) {
         if (chatType != ChatTypeEnum.PV)
             return name;
-        Profile destinationProfile = subscriptions
+        Profile destinationProfile = getPVProfile(profile);
+        if (destinationProfile == null)
+            return null;
+        return destinationProfile.getFirstName() + " " + destinationProfile.getLastName();
+    }
+
+    private Profile getPVProfile(Profile profile) {
+        if (chatType != ChatTypeEnum.PV)
+            return null;
+        return subscriptions
                 .stream()
                 .map(Subscription::getProfile)
-                .filter(subscriptionProfile -> subscriptionProfile != profile)
+                .filter(subProfile -> !Objects.equals(
+                        subProfile.getId(), profile.getId()
+                ))
                 .toList()
                 .get(0);
-        return destinationProfile.getFirstName() + destinationProfile.getLastName();
+    }
+
+    public Long getPVProfileId(Profile profile) {
+        if (chatType != ChatTypeEnum.PV)
+            return null;
+        return subscriptions
+                .stream()
+                .map(Subscription::getProfile)
+                .filter(subProfile -> !Objects.equals(
+                        subProfile.getId(), profile.getId()
+                ))
+                .toList()
+                .get(0)
+                .getId();
     }
 
     @Hidden
