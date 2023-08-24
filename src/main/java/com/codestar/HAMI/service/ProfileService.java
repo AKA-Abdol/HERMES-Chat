@@ -28,9 +28,6 @@ public class ProfileService {
     @Autowired
     UserAuthenticationService userAuthenticationService;
 
-    @Autowired
-    ProfileElasticService profileElasticService;
-
     @Transactional
     public Profile createProfile(Profile profile, long userId, Long chatId) throws IOException {
         User user = userService.getUserById(userId);
@@ -42,7 +39,7 @@ public class ProfileService {
         user.setProfile(profile);
         profile = profileRepository.saveAndFlush(profile);
         System.out.println("Before elastic call");
-        profileElasticService.addProfileToIndex(profile);
+//        profileElasticService.addProfileToIndex(profile);
         System.out.println("After elastic call");
         return profile;
     }
@@ -52,12 +49,12 @@ public class ProfileService {
     }
 
     public List<Profile> getProfilesByUserNameFuzziness(String username) throws IOException {
-        List<ProfileElasticModel> profileElasticModels =  profileElasticService.matchProfilesWithUsername(username);
-        List<Profile> profiles = new ArrayList<>();
-        for(ProfileElasticModel profileElasticModel: profileElasticModels){
-            profiles.add(this.getProfileById(profileElasticModel.getId()));
-        }
-        return profiles;
+//        List<ProfileElasticModel> profileElasticModels =  profileElasticService.matchProfilesWithUsername(username);
+//        List<Profile> profiles = new ArrayList<>();
+//        for(ProfileElasticModel profileElasticModel: profileElasticModels){
+//            profiles.add(this.getProfileById(profileElasticModel.getId()));
+//        }
+        return getProfilesByUserNamePrefix(username);
     }
 
     public List<Profile> getProfilesByUserNamePrefix(String username) {
