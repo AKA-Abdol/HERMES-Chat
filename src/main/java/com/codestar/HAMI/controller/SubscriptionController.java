@@ -74,7 +74,8 @@ public class SubscriptionController {
                                 .name(chat.getName(profile))
                                 .chatType(chat.getChatType())
                                 .lastMessage(chat.getLastMessagePreview())
-                                .id(chat.getSubscriptionChatId(profile))
+                                .chatId(chat.getId())
+                                .profileId(chat.getPVProfileId(profile))
                                 .build()
                 )
                 .toList();

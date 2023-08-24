@@ -76,6 +76,8 @@ public class Chat {
     }
 
     private Profile getPVProfile(Profile profile) {
+        if (chatType != ChatTypeEnum.PV)
+            return null;
         return subscriptions
                 .stream()
                 .map(Subscription::getProfile)
@@ -86,10 +88,18 @@ public class Chat {
                 .get(0);
     }
 
-    public Long getSubscriptionChatId(Profile profile) {
-        if (chatType == ChatTypeEnum.PV)
-            return getPVProfile(profile).getId();
-        return id;
+    public Long getPVProfileId(Profile profile) {
+        if (chatType != ChatTypeEnum.PV)
+            return null;
+        return subscriptions
+                .stream()
+                .map(Subscription::getProfile)
+                .filter(subProfile -> !Objects.equals(
+                        subProfile.getId(), profile.getId()
+                ))
+                .toList()
+                .get(0)
+                .getId();
     }
 
     @Hidden
