@@ -1,14 +1,11 @@
 package com.codestar.HAMI.entity;
 
 import com.codestar.HAMI.model.MessagePreview;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -72,7 +69,14 @@ public class Chat {
     public String getName(Profile profile) {
         if (chatType != ChatTypeEnum.PV)
             return name;
-        Profile destinationProfile = subscriptions
+        Profile destinationProfile = getPVProfile(profile);
+        if (destinationProfile == null)
+            return null;
+        return destinationProfile.getFirstName() + " " + destinationProfile.getLastName();
+    }
+
+    private Profile getPVProfile(Profile profile) {
+        return subscriptions
                 .stream()
                 .map(Subscription::getProfile)
                 .filter(subProfile -> !Objects.equals(
@@ -80,7 +84,12 @@ public class Chat {
                 ))
                 .toList()
                 .get(0);
-        return destinationProfile.getFirstName() + destinationProfile.getLastName();
+    }
+
+    public Long getSubscriptionChatId(Profile profile) {
+        if (chatType == ChatTypeEnum.PV)
+            return getPVProfile(profile).getId();
+        return id;
     }
 
     @Hidden

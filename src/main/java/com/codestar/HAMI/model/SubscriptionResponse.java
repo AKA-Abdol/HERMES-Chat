@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @Builder
 public class SubscriptionResponse {
-    private Long chatId;
+    private Long id;
     private String name;
     private ChatTypeEnum chatType;
     private byte[] photo;

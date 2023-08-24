@@ -1,9 +1,6 @@
 package com.codestar.HAMI.controller;
 
-import com.codestar.HAMI.entity.Chat;
-import com.codestar.HAMI.entity.Message;
-import com.codestar.HAMI.entity.Profile;
-import com.codestar.HAMI.entity.Subscription;
+import com.codestar.HAMI.entity.*;
 import com.codestar.HAMI.model.ProfilesSubscriptionRequest;
 import com.codestar.HAMI.model.SubscriptionResponse;
 import com.codestar.HAMI.service.*;
@@ -77,7 +74,7 @@ public class SubscriptionController {
                                 .name(chat.getName(profile))
                                 .chatType(chat.getChatType())
                                 .lastMessage(chat.getLastMessagePreview())
-                                .chatId(chat.getId())
+                                .id(chat.getSubscriptionChatId(profile))
                                 .build()
                 )
                 .toList();
