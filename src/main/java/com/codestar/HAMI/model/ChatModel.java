@@ -12,8 +12,6 @@ import lombok.Data;
 public class ChatModel {
     private long chatId;
 
-    private String bio;
-
     private ChatTypeEnum chatType;
 
     private String description;

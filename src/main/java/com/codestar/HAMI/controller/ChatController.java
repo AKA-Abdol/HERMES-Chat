@@ -49,7 +49,6 @@ public class ChatController {
         for (Chat chat : chats) {
             chatModels.add(ChatModel.builder()
                     .chatId(chat.getId())
-                    .bio(chat.getBio())
                     .chatType(chat.getChatType())
                     .description(chat.getDescription())
                     .photo(chat.getPhoto())
@@ -69,7 +68,6 @@ public class ChatController {
 
         return ChatModel.builder()
                 .chatId(chat.getId())
-                .bio(chat.getBio())
                 .chatType(chat.getChatType())
                 .description(chat.getDescription())
                 .photo(chat.getPhoto())
@@ -94,7 +92,6 @@ public class ChatController {
 
         return ChatModel.builder()
                 .chatId(chat.getId())
-                .bio(chat.getBio())
                 .chatType(chat.getChatType())
                 .description(chat.getDescription())
                 .photo(chat.getPhoto())
@@ -144,7 +141,6 @@ public class ChatController {
 
         return ChatModel.builder()
                 .chatId(chat.getId())
-                .bio(chat.getBio())
                 .chatType(chat.getChatType())
                 .description(chat.getDescription())
                 .photo(chat.getPhoto())
@@ -158,7 +154,7 @@ public class ChatController {
                 ? fileService.getFileById(request.getPhotoId())
                 : null;
         Chat chat = chatService.createChatForGroup(
-                request.getName(), photo, profile.getId()
+                request.getName(), request.getDescription(), photo, profile.getId()
         );
 
         ArrayList<Profile> profiles = new ArrayList<>(
@@ -172,7 +168,6 @@ public class ChatController {
 
         return ChatModel.builder()
                 .chatId(chat.getId())
-                .bio(chat.getBio())
                 .chatType(chat.getChatType())
                 .description(chat.getDescription())
                 .photo(chat.getPhoto())
@@ -182,6 +177,13 @@ public class ChatController {
     @PostMapping("/pv/{profileId}")
     public ChatModel createPv(@Valid @PathVariable Long profileId) {
         Profile profile = userAuthenticationService.getAuthenticatedProfile();
+
+        if(subscriptionService.isPv(subscriptionService.intersectionSubscription
+                (profile, profileService.getProfileById(profileId)))
+        ) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "you had chat with this profile");
+        }
+
         Chat chat = chatService.createChatForPv(profileId);
 
         subscriptionService.createSubscription(chat, profile);
@@ -192,7 +194,6 @@ public class ChatController {
 
         return ChatModel.builder()
                 .chatId(chat.getId())
-                .bio(chat.getBio())
                 .chatType(chat.getChatType())
                 .description(chat.getDescription())
                 .photo(chat.getPhoto())
