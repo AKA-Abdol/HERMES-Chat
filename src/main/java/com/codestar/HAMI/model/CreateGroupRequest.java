@@ -14,6 +14,8 @@ public class CreateGroupRequest {
 
     private Long photoId;
 
+    private String description;
+
     private ArrayList<Long> profileIds;
 
 }

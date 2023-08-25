@@ -1,8 +1,10 @@
 package com.codestar.HAMI.service;
 
 import com.codestar.HAMI.entity.Chat;
+import com.codestar.HAMI.entity.ChatTypeEnum;
 import com.codestar.HAMI.entity.Profile;
 import com.codestar.HAMI.entity.Subscription;
+import com.codestar.HAMI.repository.ChatRepository;
 import com.codestar.HAMI.repository.SubscriptionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,8 @@ import java.util.Objects;
 public class SubscriptionService {
     @Autowired
     SubscriptionRepository subscriptionRepository;
+    @Autowired
+    ChatRepository chatRepository;
 
     public List<Subscription> getSubscriptionsByProfileId(Profile profile) {
 
@@ -93,6 +97,34 @@ public class SubscriptionService {
 
     public List<Subscription> getSubscriptionsByChatId(Long chatId) {
         return subscriptionRepository.findByChatId(chatId);
+    }
+
+    public List<Long> intersectionSubscription(Profile profile1, Profile profile2) {
+
+        List<Long> sub1 = new ArrayList<>();
+        getChatsByProfile(profile1).forEach(chat -> sub1.add(chat.getId()));
+        List<Long> sub2 = new ArrayList<>();
+        getChatsByProfile(profile2).forEach(chat -> sub2.add(chat.getId()));
+
+
+
+        List<Long> intersection = new ArrayList<>();
+
+        for(Long chatId: sub1) {
+            if(sub2.contains(chatId)) {
+                intersection.add(chatId);
+            }
+        }
+        System.out.println("count: " + (long) intersection.size());
+        return intersection;
+    }
+
+    public boolean isPv(List<Long> chatIds) {
+        for(Long chatId: chatIds) {
+            if(chatRepository.findById(chatId).get().getChatType() == ChatTypeEnum.PV)
+                return true;
+        }
+        return false;
     }
 
 }

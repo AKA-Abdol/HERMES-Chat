@@ -65,13 +65,11 @@ public class ChatService {
                 );
 
         updateChat.setName(chat.getName());
-        updateChat.setBio(chat.getBio());
         updateChat.setChatType(chat.getChatType());
         updateChat.setDescription(chat.getDescription());
 
         if (updateChat != null) {
             updateChat.setName(chat.getName());
-            updateChat.setBio(chat.getBio());
             updateChat.setChatType(chat.getChatType());
             updateChat.setDescription(chat.getDescription());
 
@@ -106,11 +104,12 @@ public class ChatService {
     }
 
     public Chat createChatForGroup(
-            String name, File photo, Long creatorProfileId
+            String name, String description, File photo, Long creatorProfileId
     ) {
         Chat chat = new Chat();
         chat.setName(name);
         chat.setPhoto(photo);
+        chat.setDescription(description);
         chat.setChatType(ChatTypeEnum.GROUP);
         chat.setCreatorProfileId(creatorProfileId);
         return chatRepository.save(chat);
