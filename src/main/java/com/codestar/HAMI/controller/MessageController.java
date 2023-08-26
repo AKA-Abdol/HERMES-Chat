@@ -1,10 +1,7 @@
 package com.codestar.HAMI.controller;
 
 import com.codestar.HAMI.entity.*;
-import com.codestar.HAMI.model.ChatMessagesModel;
-import com.codestar.HAMI.model.MessageForwardRequest;
-import com.codestar.HAMI.model.MessageModel;
-import com.codestar.HAMI.model.MessageRequest;
+import com.codestar.HAMI.model.*;
 import com.codestar.HAMI.service.*;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
@@ -66,7 +63,15 @@ public class MessageController {
                                                                     .isSelf(profileId.equals(message.getProfile().getId()))
                                                                     .id(message.getId())
                                                                     .viewCount(message.getViewCount())
-                                                                    .fullName(message.getProfile().getFullName())
+                                                                    .replyMessageId(message.getReplyMessageId());
+                                            if(message.getReplyMessageId() != null) {
+                                                builder.replyPreview(ReplyPreview
+                                                        .builder()
+                                                        .text(messageService.getMessageById(message.getReplyMessageId()).getText())
+                                                        .fullName(messageService.getMessageById(message.getReplyMessageId()).getProfile().getFullName())
+                                                        .build());
+                                            }
+                                                                    builder.fullName(message.getProfile().getFullName())
                                                                     .forwarded(false);
 
                                                     if (message.getSubscription() != null) {
@@ -208,6 +213,17 @@ public class MessageController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "this message a channel message.");
 
         return messageService.updateMessageView(messageId);
+    }
+
+    @PostMapping("reply/{messageId}")
+    public Long replyMessage(@PathVariable Long messageId, @RequestBody Message messageDetaile) {
+        Profile profile = userAuthenticationService.getAuthenticatedProfile();
+        Message message = messageService.getMessageById(messageId);
+        Chat chat = chatService.getChatById(message.getChat().getId());
+
+        messageDetaile.setReplyMessageId(messageId);
+
+        return messageService.createMessage(messageDetaile, profile, chat).getId();
     }
 
 }

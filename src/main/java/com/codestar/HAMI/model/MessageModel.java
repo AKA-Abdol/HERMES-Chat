@@ -16,4 +16,6 @@ public class MessageModel {
     private Long viewCount;
     private String fullName;
     private Boolean forwarded;
+    private Long replyMessageId;
+    private ReplyPreview replyPreview;
 }
