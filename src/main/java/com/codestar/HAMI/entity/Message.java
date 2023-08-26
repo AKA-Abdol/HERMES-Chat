@@ -43,6 +43,10 @@ public class Message {
     private File file;
 
     @Hidden
+    @Column
+    private Long replyMessageId;
+
+    @Hidden
     @JsonIgnore
     @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JoinColumn(name = "chat_id", nullable = false)
