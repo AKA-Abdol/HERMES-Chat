@@ -3,6 +3,6 @@ build:
   only:
    - main
   before_script:
-  - docker compose down
+  - docker compose down --remove-orphans
   script:
   - docker compose up -d --build
