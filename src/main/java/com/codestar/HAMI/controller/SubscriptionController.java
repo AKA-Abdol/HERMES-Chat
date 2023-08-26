@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/subscribe")
@@ -42,7 +43,27 @@ public class SubscriptionController {
     public void unSubscribeChat(@PathVariable Long chatId) {
         Chat chat = chatService.getChatById(chatId);
         Profile profile = userAuthenticationService.getAuthenticatedProfile();
-        subscriptionService.deleteSubscription(chat, profile);
+        if(chat.getChatType() == ChatTypeEnum.PV) {
+            //subscriptionService.deleteSubscription(chat, profile);
+
+            //System.out.println("111111111111111111111111");
+//            Profile profilePv1 = subscriptionService.getSubscriptionsByChatId(chatId).get(0).getProfile();
+//            System.out.println("222222222222222222222222");
+//            Profile profilePv2 = subscriptionService.getSubscriptionsByChatId(chatId).get(1).getProfile();
+//            System.out.println("333333333333333333333333");
+//
+//            System.out.println("profilepv1 = " + profilePv1.getId());
+//            System.out.println("profilepv2 = " + profilePv2.getId());
+//
+//            if(Objects.equals(profilePv1.getId(), profile.getId()))
+//                subscriptionService.deleteSubscription(chat, profilePv2);
+//            else
+//                subscriptionService.deleteSubscription(chat, profilePv1);
+
+            chatService.deleteChat(chat);
+        }
+        else
+            subscriptionService.deleteSubscription(chat, profile);
     }
 
     @PostMapping("/{chatId}/profiles")
@@ -74,6 +95,7 @@ public class SubscriptionController {
                                 .name(chat.getName(profile))
                                 .chatType(chat.getChatType())
                                 .lastMessage(chat.getLastMessagePreview())
+                                .unSeenCount(messageService.countOfUnreadMessage(chat, profile, subscriptionService.getSubscription(chat, profile).getLastSeenMessageId()))
                                 .chatId(chat.getId())
                                 .profileId(chat.getPVProfileId(profile))
                                 .build()

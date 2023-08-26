@@ -181,4 +181,8 @@ public class ChatService {
         chat.setPhoto(photo);
         chatRepository.save(chat);
     }
+
+    public void deleteChat(Chat chat) {
+        chatRepository.delete(chat);
+    }
 }

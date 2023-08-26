@@ -42,7 +42,7 @@ public class Chat {
     @JoinColumn(name = "photo_id")
     private File photo;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "chat")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "chat", orphanRemoval=true)
     @Hidden
     private Set<Subscription> subscriptions = new HashSet<>();
 
