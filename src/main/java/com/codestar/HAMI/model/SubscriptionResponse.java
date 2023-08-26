@@ -12,5 +12,6 @@ public class SubscriptionResponse {
     private ChatTypeEnum chatType;
     private byte[] photo;
     private MessagePreview lastMessage;
+    private Long unSeenCount;
     private Long profileId;
 }
